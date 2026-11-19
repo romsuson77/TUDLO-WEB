@@ -1039,7 +1039,7 @@ function scrTitle(){P=null;const profs=Object.entries(STORE.profiles);
    <div class="crests">${CRESTS.map(c=>`<button class="${c===newCrest?'on':''}" onclick="newCrest='${c}';document.querySelectorAll('.crests button').forEach(b=>b.classList.toggle('on',b.textContent==='${c}'))">${c}</button>`).join('')}</div>
    <div class="center" style="margin-top:14px"><button class="btn" onclick="createProfile()">🏰 Found my Kingdom</button></div>
    ${MEMONLY?'<p class="muted center">Note: this browser is not allowing saving, so progress lasts only while this page is open.</p>':''}
-  </div><p class="center acr">Kinder to Grade 6 · all MATATAG subjects · Grade 6 & First Year High School Pre-Algebra</p><p class="center" style="color:#9fb0d8;font-size:12px;margin:2px 0 0">TUDLO v6.1 · 19 Nov 2026</p>`)}
+  </div><p class="center acr">Kinder to Grade 6 · all MATATAG subjects · Grade 6 & First Year High School Pre-Algebra</p><p class="center" style="color:#9fb0d8;font-size:12px;margin:2px 0 0">TUDLO v6.2 · 19 Nov 2026 · 🎤 Say it!</p>`)}
 function createProfile(){const n=($('#pname').value||'').trim();if(!n){$('#pname').focus();toast('✍️ Type your name first, Commander!');return}
   const id='p'+Date.now();STORE.profiles[id]=newProfile(n,newCrest);STORE.current=id;P=STORE.profiles[id];if(newMode!=='g6'){P.young=true;P.yk.grade=newMode==='k1'?1:newGrade;P.intro=true;P.assess={done:true,skipped:true,res:{}};save();scrYoung();return}save();scrKingdom()}
 function pickProfile(id){STORE.current=id;P=STORE.profiles[id];migrate();save();P.young?scrYoung():scrKingdom()}
@@ -1722,7 +1722,7 @@ const PRAISE=['Great reading!','Super!','You got it!','Awesome!','Wow, well done
 const norm=s=>String(s).toLowerCase().replace(/[^a-z]/g,'');
 
 // --- HUB ---
-function ytop(){return `<div class="top"><div class="who" onclick="go('young')"><span style="font-size:24px">${P.crest}</span><span>${esc(P.name)}</span></div><span class="res">💂 ${P.yk.warriors}</span><span class="res">🪙 ${Math.floor(P.res.gold)}</span><button class="btn sec sm" onclick="yVoice()" title="Voice">${P.settings.voice!==false?'🔊':'🔇'}</button></div>`}
+function ytop(){return `<div class="top"><div class="who" onclick="go('young')"><span style="font-size:24px">${P.crest}</span><span>${esc(P.name)}</span></div><span class="res">💂 ${P.yk.warriors}</span><span class="res">🪙 ${Math.floor(P.res.gold)}</span><button class="btn sec sm" onclick="yVoice()" title="Voice">${P.settings.voice!==false?'🔊':'🔇'}</button><button class="btn sec sm" onclick="micToggle()" title="Say it! (microphone) — for parents">${micOn()?'🎤':'🎤<small style="font-size:10px">off</small>'}</button></div>`}
 function yNode(L,list){const i=list.indexOf(L);const open=yOpen(list,i);const st=P.yk.st[L.id]||{};const next=open&&!st.done;
   const b=P.yk.bt[L.id]||{};const foe=foeOf(L.id);
   return `<div class="nwrap"><button class="knode ${open?'':'locked'} ${L.boss?'boss':''} ${next?'next':''}" onclick="${open?`startLevel('${L.id}')`:`toast('🔒 Finish the level before this one first!')`}"><span class="ic">${open?L.e:'🔒'}</span><span style="flex:1;text-align:left">${L.name}<small>${L.sub}</small></span><span class="stars">${st.done?stars(st.stars):next?'▶':''}</span></button>
@@ -1800,7 +1800,7 @@ function yPush(){if(YL.cur.pushed)return;YL.cur.pushed=true;YL.tok++;try{speechS
   $('#tiles').classList.add('merged');tone(300,.15,'sine',.06);tone(600,.2,'sine',.06,.15);$('#pushb').remove();
   const pool=picPool().filter(x=>x.e&&x.w!==w.w&&x.e!==w.e);const others=[];for(const x of shuffle(pool.slice())){if(others.length>=2)break;if(!others.some(o=>o.e===x.e))others.push(x)}
   const opts=shuffle([w,...others]);YL.cur.opts=opts;
-  setTimeout(()=>{$('#chk').innerHTML=`<div class="kq" style="margin-top:14px">${T('Read the word out loud!','Basahin nang malakas!')} 🗣️<br><small>${T('Which picture is it?','Alin ang larawan?')}</small></div><div class="pics">${opts.map((o,k)=>`<button class="pic" onclick="yPic(${k},this)">${o.e}</button>`).join('')}</div><div class="fb" id="fb"></div>`;say(T('Read the word! Which picture is it?','Basahin ang salita! Alin ang larawan?'),.9)},650)}
+  setTimeout(()=>{$('#chk').innerHTML=`<div class="kq" style="margin-top:14px">${T('Read the word out loud!','Basahin nang malakas!')} 🗣️<br><small id="picq">${micReady()?T('First read it out loud! Tap 🎤 and say the word.','Basahin muna nang malakas! Pindutin ang 🎤 at sabihin.'):T('Which picture is it?','Alin ang larawan?')}</small></div>${micReady()?`<div class="center" style="margin:6px 0">${micBtnH('word')}</div><div class="fb" id="micfb"></div>`:''}<div class="pics" id="ypics" ${micReady()?'style="display:none"':''}>${opts.map((o,k)=>`<button class="pic" onclick="yPic(${k},this)">${o.e}</button>`).join('')}</div><div class="fb" id="fb"></div>`;say(micReady()?T('Read the word out loud first! Tap the microphone and say it.','Basahin muna nang malakas! Pindutin ang mikropono at sabihin.'):T('Read the word! Which picture is it?','Basahin ang salita! Alin ang larawan?'),.9)},650)}
 function yPic(k,btn){const C=YL.cur;if(C.done)return;const it=YL.items[YL.i],w=it.w;const o=C.opts[k];
   if(o.w===w.w){btn.classList.add('good');C.done=true;yWordDone(true);return}
   btn.classList.add('bad');btn.disabled=true;it.tries++;SFX.miss();
@@ -1810,15 +1810,9 @@ function yWordDone(ok){const it=YL.items[YL.i],w=it.w;P.yk.words[w.w]=P.yk.words
   if(ok)P.yk.read++;if(!ok||it.tries>0)srMiss({lv:YL.L.id,w:w.w});const n=ok?(it.tries===0?wPower(w):1):1;const pr=ok?praise():T(`This word is <b>${w.w}</b>. We'll try it again soon!`,`Ang salita ay <b>${w.w}</b>. Susubukan natin ulit!`);
   if(!ok)yRequeue(x=>({w:x.w,spell:false}));
   const html=yWin(n,`<div class="bigpic">${w.e}</div><div class="bigword">${w.w}</div>${YL.L.lang==='fil'?gl(w.w):''}<div style="font-size:20px;font-weight:800">${pr}</div>`);
-  $('#chk').innerHTML=html+`<div class="row" style="justify-content:center;margin-top:8px"><button class="btn sec" id="micb" onclick="micSay('${w.w}',this)">🎤 Say it! (+1)</button><button class="btn green" onclick="yNext()">Next ▶</button></div>`;
+  $('#chk').innerHTML=html+`<div class="row" style="justify-content:center;margin-top:8px">${micReady()&&!YL.cur.spoke?`<button class="btn sec" id="micb" onclick="micSay('${w.w}',this)">🎤 Say it! (+1)</button>`:''}<button class="btn green" onclick="yNext()">Next ▶</button></div><div class="fb" id="micfb"></div>`;
   const wb=$('#wbtns');if(wb)wb.innerHTML=`<button class="btn blue sm" onclick="say('${w.w}',.7)">🔊 Hear the word</button>`;
   say(ok?`${w.w}! ${pr}`:T(`This word is ${w.w}.`,`Ang salita ay ${w.w}.`),.85)}
-function micSay(target,btn){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){toast('🎤 Listening isn\'t available here — read it out loud to a grown-up!');btn.remove();return}
-  if(btn.dataset.busy)return;btn.dataset.busy=1;btn.textContent='👂 Listening…';btn.classList.add('listen');
-  try{try{speechSynthesis.cancel()}catch(e){}const r=new SR();r.lang='en-US';r.maxAlternatives=5;r.interimResults=false;let got=false;
-    r.onresult=e=>{got=true;const alts=[...e.results[0]].map(a=>a.transcript.toLowerCase().replace(/[^a-z ]/g,' ').trim());if(alts.some(a=>a.split(/\s+/).includes(target))){btn.outerHTML=`<span class="pill" style="background:#c8f7d4;font-size:16px">🎤 Loud and proud! +1 💂</span>`;gain({soldiers:1});P.yk.warriors++;YL.gained++;P.yk.spoke=(P.yk.spoke||0)+1;save();SFX.coin();say('Loud and proud!')}else{btn.textContent='🎤 Try again';delete btn.dataset.busy;btn.classList.remove('listen');say(`I heard something else. Say ${target}.`)}};
-    r.onerror=()=>{toast('🎤 The microphone isn\'t allowed here — read it out loud to a grown-up!');btn.remove()};
-    r.onend=()=>{if(!got&&btn.isConnected){btn.textContent='🎤 Say it! (+1)';delete btn.dataset.busy;btn.classList.remove('listen')}};r.start()}catch(e){btn.remove()}}
 
 // --- SPELL (boss levels): hear it, build it ---
 function renderSpell(){const it=YL.items[YL.i],w=it.w;const letters=w.w.split('');const abc='abcdefghijklmnoprstuvwy';const ex=[];while(ex.length<2){const c=pick(abc.split(''));if(!letters.includes(c)&&!ex.includes(c))ex.push(c)}
@@ -1840,7 +1834,7 @@ function renderPage(){const it=YL.items[YL.i];if(!it){endLesson();return}const p
   screen(yHead()+`<div class="card kcard center"><div class="muted" style="font-weight:800">📖 Page ${YL.i+1} of ${YL.items.length}</div><div class="storypic">${p[0]}</div>
    <div class="chips" id="chips">${toks.map((t,j)=>`<span class="chip" onclick="yChip(${j},this)" data-k="${norm(t)}">${esc(t)}</span>`).join(' ')}</div>
    ${p[3]?trBox(p[3][0],p[3][1]):''}<p class="muted" id="rtip">${T('Read it out loud! Tap a word if you need help. 👆','Basahin nang malakas! Pindutin ang salita kung kailangan ng tulong. 👆')}</p>
-   <div class="row" style="justify-content:center" id="rbtns"><button class="btn blue" onclick="yReadToMe()">🔊 ${T('Read to me','Basahin mo')}</button><button class="btn green pulse" onclick="yReadDone()">✔ ${T('I read it!','Nabasa ko na!')}</button></div><div id="chk"></div></div></div>`)}
+   <div class="row" style="justify-content:center" id="rbtns"><button class="btn blue" onclick="yReadToMe()">🔊 ${T('Read to me','Basahin mo')}</button>${micReady()?micBtnH('page',T("I'll read it!",'Babasahin ko!')):''}<button class="btn green ${micReady()?'':'pulse'}" onclick="yReadDone()">✔ ${T('I read it!','Nabasa ko na!')}</button></div><div class="fb" id="micfb"></div><div id="chk"></div></div></div>`)}
 function yReadToMe(){const chips=[...document.querySelectorAll('#chips .chip')];const starts=[];let pos=0;chips.forEach(c=>{starts.push(pos);pos+=c.textContent.length+1});
   const text=chips.map(c=>c.textContent).join(' ');const hl=j=>chips.forEach((c,k)=>c.classList.toggle('on',k===j));
   say(text,.75,e=>{if(e.name&&e.name!=='word')return;let j=0;starts.forEach((s,k)=>{if(s<=e.charIndex)j=k});hl(j)}).then(()=>hl(-1))}
@@ -2558,7 +2552,7 @@ function makeSummary(){const Y=P.yk;const days=[];for(let i=6;i>=0;i--){const d=
   const weak=Object.entries(Y.st).filter(([id,s])=>(s.n||0)>=4&&s.first/s.n<.6).sort((a,b)=>a[1].first/a[1].n-b[1].first/b[1].n).slice(0,6).map(([id,s])=>{const L=LVL(id);return[(L&&L.name)||s.nm||id,Math.round(s.first/s.n*100),(L&&L.grade)||s.g||1]});
   const tricky=Object.entries(Y.words||{}).filter(([w,s])=>s.miss>0&&s.miss>=s.ok).map(([w])=>w).slice(0,8);
   let k=null;if(Object.keys(P.stats||{}).length){const tot=Object.values(P.stats).reduce((a,s)=>({n:a.n+s.n,f:a.f+s.first}),{n:0,f:0});k=[conquered().length,avgMastery(),tot.n?Math.round(tot.f/tot.n*100):0,level(P.xp)]}
-  return{v:1,n:P.name,c:P.crest,t:Date.now(),g:Y.grade||1,w:Y.warriors||0,m:Math.round((P.time||0)/60),d:days,qs:(Y.quest&&Y.quest.streak)||0,qd:(Y.quest&&Y.quest.days.length)||0,ql:(Y.quest&&Y.quest.last)||'',sr:Object.keys(Y.sr||{}).length,b:Y.wins||0,tr:Y.traced||0,dr:(Y.gallery||[]).length,r:roads,wk:weak,tw:tricky,k}}
+  return{v:1,n:P.name,c:P.crest,t:Date.now(),g:Y.grade||1,w:Y.warriors||0,m:Math.round((P.time||0)/60),d:days,qs:(Y.quest&&Y.quest.streak)||0,qd:(Y.quest&&Y.quest.days.length)||0,ql:(Y.quest&&Y.quest.last)||'',sr:Object.keys(Y.sr||{}).length,b:Y.wins||0,tr:Y.traced||0,sp:Y.mic?[Y.mic.n,Y.mic.ok,P.settings.mic?1:0]:null,dr:(Y.gallery||[]).length,r:roads,wk:weak,tw:tricky,k}}
 const b64u=s=>btoa(unescape(encodeURIComponent(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
 function chk36(s){let h=0;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))%46656;return h.toString(36).padStart(3,'0')}
 function encodeReport(o){const p=b64u(JSON.stringify(o));return `TUDLO1.${p}.${chk36(p)}`}
@@ -2576,6 +2570,132 @@ function scrSend(){YL=null;screen(`<div class="kid">${P.young?ytop():topbar()}<d
     loadQR().then(()=>{try{const q=qrcode(0,'L');q.addData(code);q.make();$('#qrbox').innerHTML=q.createImgTag(4,10)+'<br><small class="muted">📷 Parent: take a photo of this QR in the TUDLO Parent app</small>'}catch(e){$('#qrbox').innerHTML='<small class="muted">The code is too long for a QR here — use 📋 Copy code instead.</small>'}}).catch(()=>{const b=$('#qrbox');if(b)b.innerHTML='<small class="muted">QR needs internet. You can still 📋 copy the code and send it.</small>'})})}
 function copyCode(){const t=$('#codebox');if(!t)return;const v=t.value;const ok=()=>toast('📋 Code copied! Paste it in a message to your parent.');try{navigator.clipboard.writeText(v).then(ok,()=>{t.select();toast('Press Ctrl+C / tap Copy to copy the selected code')})}catch(e){t.select()}}
 
+// ================= 🎤 SAY IT! — the child reads out loud, TUDLO listens =================
+// Android app: native SpeechRecognizer via window.AndroidSTT. Chrome / Edge: Web Speech API.
+// Parents switch it on (P.settings.mic). Audio is never stored by TUDLO.
+const STT={cb:{},n:0,web:null,busy:false};
+window.__sttResult=(id,alts)=>{const f=STT.cb[id];if(f){delete STT.cb[id];f({alts:Array.isArray(alts)?alts:[]})}};
+window.__sttError=(id,code)=>{const f=STT.cb[id];if(f){delete STT.cb[id];f({err:String(code||'err')})}};
+window.__sttReady=id=>{const b=document.querySelector('.micbtn.listen');if(b)b.classList.add('hot')};
+function micAvail(){try{if(window.AndroidSTT)return !!AndroidSTT.available();}catch(e){return false}return !!(window.SpeechRecognition||window.webkitSpeechRecognition)}
+function micOn(){return !!(P&&P.settings&&P.settings.mic===true)}
+function micReady(){return micOn()&&micAvail()}
+function micStop(){try{if(window.AndroidSTT)AndroidSTT.cancel()}catch(e){}try{if(STT.web)STT.web.abort()}catch(e){}STT.web=null;STT.busy=false;for(const k in STT.cb){const f=STT.cb[k];delete STT.cb[k];f({err:'cancel'})}}
+function sayStop(){try{speechSynthesis.cancel()}catch(e){}try{if(window.AndroidTTS)AndroidTTS.stop()}catch(e){}}
+// Listen once. Resolves {alts:[...]} or {err:'no-speech'|'not-allowed'|...}
+function listen(lang){sayStop();micStop();STT.busy=true;const loc=lang==='fil'?'fil-PH':'en-US';
+  const done=v=>{STT.busy=false;return v};
+  if(window.AndroidSTT){return new Promise(res=>{const id='s'+(++STT.n);STT.cb[id]=v=>res(done(v));
+    try{AndroidSTT.listen(loc,id)}catch(e){delete STT.cb[id];res(done({err:'bridge'}))}
+    setTimeout(()=>{if(STT.cb[id]){try{AndroidSTT.cancel()}catch(e){}window.__sttError(id,'timeout')}},14000)})}
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return Promise.resolve(done({err:'none'}));
+  return new Promise(res=>{let fin=false;const end=v=>{if(fin)return;fin=true;STT.web=null;res(done(v))};
+    try{const r=new SR();STT.web=r;r.lang=loc;r.maxAlternatives=5;r.interimResults=false;r.continuous=false;
+      r.onstart=()=>window.__sttReady();r.onresult=e=>end({alts:[...e.results[0]].map(a=>a.transcript)});
+      r.onerror=e=>end({err:(e&&e.error)||'err'});r.onend=()=>end({err:'no-speech'});r.start();
+      setTimeout(()=>{try{r.stop()}catch(e){}},9000)}catch(e){end({err:'start'})}})}
+
+// ---------- matching: is the heard text the word / sentence we wanted? ----------
+const NUMW=['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen','twenty'];
+const SAMEAS={sun:['son'],son:['sun'],red:['read'],read:['red','reed'],sea:['see','c'],see:['sea','c'],bee:['be','b'],be:['bee','b'],pea:['pee','p'],tea:['tee','t'],two:['to','too','2'],to:['two','too'],for:['four','4'],four:['for','4'],eight:['ate','8'],ate:['eight'],one:['won','1'],won:['one'],hen:['ten'],ten:['hen'],i:['eye','aye'],eye:['i'],hi:['high'],high:['hi'],no:['know'],know:['no'],night:['knight'],knight:['night'],
+  rose:['rows'],dear:['deer'],deer:['dear'],tail:['tale'],tale:['tail'],pail:['pale'],pale:['pail'],meet:['meat'],meat:['meet'],right:['write'],write:['right'],way:['weigh'],flower:['flour'],flour:['flower'],ant:['aunt'],aunt:['ant'],bear:['bare'],hare:['hair'],hair:['hare'],
+  mga:['manga','mangga','nga'],ng:['nang'],nang:['ng'],ang:['an'],si:['see','c'],ni:['knee'],sa:['saa']};
+function micNorm(s){return String(s||'').toLowerCase().replace(/ñ/g,'n').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\b(\d{1,2})\b/g,(m,d)=>NUMW[+d]||m).replace(/[^a-z0-9' ]/g,' ').replace(/'/g,'').replace(/\s+/g,' ').trim()}
+function lev(a,b){if(a===b)return 0;const m=a.length,n=b.length;if(!m)return n;if(!n)return m;let p=Array.from({length:n+1},(_,j)=>j);for(let i=1;i<=m;i++){const c=[i];for(let j=1;j<=n;j++)c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=c}return p[n]}
+// 2 = said it, 1 = almost (very close), 0 = something else
+function tokMatch(t,tok){if(!tok)return 0;if(tok===t||(SAMEAS[t]||[]).includes(tok))return 2;
+  if(t.length>=7&&lev(t,tok)<=1)return 2;               // long words: tolerate one slip of the recognizer
+  if(t.length>=3&&tok.length===t.length+1&&tok.startsWith(t)&&/[sd]$/.test(tok))return 2; // "bans","band" for "ban"
+  if(t.length>=6&&lev(t,tok)<=2)return 1;
+  if(t.length>=3&&lev(t,tok)===1&&tok[0]===t[0])return 1; // ban → bun: close, but the vowel matters
+  return 0}
+function wordHeard(target,alts){const t=micNorm(target).replace(/ /g,'');let best=0,heard='';
+  (alts||[]).forEach((a,k)=>{const n=micNorm(a);if(!heard&&n)heard=n;const toks=n.split(' ');const joined=toks.join('');
+    let s=Math.max(0,...toks.map(x=>tokMatch(t,x)));if(joined===t)s=2;
+    // multi-word targets (e.g. "mga aso")
+    if(/ /.test(micNorm(target))){const f=sentHeard(target,[a]).frac;s=Math.max(s,f>=.99?2:f>=.6?1:0)}
+    if(s>best){best=s;if(s===2||k===0)heard=n}});return{score:best,heard}}
+function sentHeard(target,alts){const tw=micNorm(target).split(' ').filter(Boolean);let best={frac:0,hit:[],heard:''};
+  (alts||[]).forEach(a=>{const toks=micNorm(a).split(' ').filter(Boolean);const used=new Set();const hit=tw.map(t=>{for(let k=0;k<toks.length;k++){if(used.has(k))continue;if(tokMatch(t,toks[k])===2||(t.length<=2&&toks[k]===t)){used.add(k);return true}}return false});
+    const frac=tw.length?hit.filter(Boolean).length/tw.length:0;if(frac>best.frac||!best.heard)best={frac,hit,heard:micNorm(a)}});return best}
+
+// ---------- the 🎤 button ----------
+function micBtnH(kind,label){return `<button class="btn micbtn" onclick="micGo('${kind}',this)">🎤 ${label||T('Say it!','Sabihin mo!')}</button>`}
+function micErrMsg(err){if(err==='not-allowed'||err==='service-not-allowed'||err==='perm')return T('🎤 The microphone is not allowed. Ask a grown-up to allow it in the phone settings.','🎤 Hindi pinapayagan ang mikropono. Magpatulong sa nakatatanda.');
+  if(err==='network'||err==='net')return T('🎤 Listening needs internet. You can still tap the answer!','🎤 Kailangan ng internet. Pindutin na lang ang sagot!');
+  if(err==='nolang')return T('🎤 This phone cannot listen in this language yet. Tap the answer instead!','🎤 Hindi pa makinig ang telepono sa wikang ito. Pindutin na lang ang sagot!');
+  if(err==='none'||err==='bridge'||err==='start')return T('🎤 This phone/browser cannot listen. Use the TUDLO app or Chrome.','🎤 Hindi makinig ang device na ito.');
+  return ''}
+async function micGo(kind,btn){if(!btn||btn.dataset.busy||!YL)return;const it=YL.items[YL.i];const tok=YL.tok;const lang=YL.L.lang==='fil'?'fil':'en';
+  const target=kind==='page'?it.p[1]:it.w.w;btn.dataset.busy=1;btn.classList.add('listen');const lab=btn.innerHTML;
+  btn.innerHTML=`👂 ${T('Listening… say it now!','Nakikinig… sabihin na!')} <span class="mbars"><i></i><i></i><i></i></span>`;
+  P.yk.mic=P.yk.mic||{n:0,ok:0};P.yk.mic.n++;
+  const r=await listen(lang);if(!YL||YL.tok!==tok||!btn.isConnected)return;btn.classList.remove('listen','hot');delete btn.dataset.busy;
+  if(r.err){const m=micErrMsg(r.err);YL.cur.mt=(YL.cur.mt||0)+1;if(kind==='word'&&(m||YL.cur.mt>=3))micReveal();if(m){toast(m);if(r.err!=='network')btn.remove();else btn.innerHTML=lab;return}
+    btn.innerHTML='🎤 '+T('I didn\'t hear you — try again','Hindi kita narinig — ulitin');say(T('I did not hear you. Say it loud!','Hindi kita narinig. Lakasan mo!'),.9);return}
+  if(kind==='page')return micPage(btn,target,r.alts,lang);return micWord(kind,btn,target,r.alts,lang)}
+function micReveal(){const p=document.getElementById('ypics');if(p&&p.style.display==='none'){p.style.display='';const q=document.getElementById('picq');if(q)q.innerHTML=T('Now tap the picture! 👇','Pindutin ang larawan! 👇')}}
+function micHead(){const h=document.querySelector('.kid .top .res');if(h&&YL)h.textContent='💂 +'+YL.gained}
+function micFb(html,cls){const f=document.getElementById('micfb');if(f){f.className='fb '+(cls||'');f.innerHTML=html}}
+async function micLight(sel){const ts=[...document.querySelectorAll(sel)];for(const t of ts){t.classList.add('said');tone(520+ts.indexOf(t)*90,.09,'triangle',.05);await sleep(140)}}
+function micWord(kind,btn,target,alts,lang){const it=YL.items[YL.i];const m=wordHeard(target,alts);const C=YL.cur;C.mt=(C.mt||0)+1;
+  if(m.score===2){P.yk.mic.ok++;P.yk.spoke=(P.yk.spoke||0)+1;const bonus=kind==='after'?1:2;gain({soldiers:bonus});P.yk.warriors+=bonus;YL.gained+=bonus;C.spoke=true;save();SFX.coin();micHead();
+    btn.outerHTML=`<span class="pill" style="background:#c8f7d4;font-size:17px">🎤 ${T('You read it!','Nabasa mo!')} "<b>${esc(target)}</b>" +${bonus} 💂</span>`;
+    micLight('#tiles .tile');micFb('','');
+    if(kind==='word'){micReveal();say(T(`${target}! You read it! Now find the picture.`,`${target}! Nabasa mo! Hanapin ang larawan.`),.9)}
+    else say(T('Loud and proud!','Ang galing mo!'));return}
+  const heard=m.heard?`"<b>${esc(m.heard)}</b>"`:T('something else','iba');
+  if(m.score===1&&C.mt>=3){micReveal();micFb(T(`Almost! The word is <b>${esc(target)}</b>. Now find the picture! 👍`,`Halos tama! Ang salita ay <b>${esc(target)}</b>. Hanapin ang larawan! 👍`),'warn');btn.remove();say(T(`Almost! The word is ${target}.`,`Halos tama! Ang salita ay ${target}.`),.8);return}
+  if(m.score===1){micFb(T(`So close! I heard ${heard}. Listen to each sound and try again.`,`Malapit na! Narinig ko ang ${heard}. Pakinggan at ulitin.`),'warn');btn.innerHTML='🎤 '+T('Try again','Ulitin');
+    say(T('So close! Listen.','Malapit na! Pakinggan.'),.9).then(()=>{if(kind==='word'&&typeof ySoundOut==='function')return ySoundOut(true);return say(target,.7)});return}
+  if(C.mt>=2){if(kind==='word')micReveal();micFb(T(`I heard ${heard}. This word is <b>${esc(target)}</b>. ${kind==='word'?'Now find the picture!':'Let\'s keep going!'} 👍`,`Narinig ko ang ${heard}. Ang salita ay <b>${esc(target)}</b>. Tuloy tayo! 👍`),'warn');btn.remove();say(T(`This word is ${target}.`,`Ang salita ay ${target}.`),.8);return}
+  micFb(T(`I heard ${heard}. Let's blend the sounds together, then try again!`,`Narinig ko ang ${heard}. Pagsamahin ang mga tunog, saka ulitin!`),'warn');btn.innerHTML='🎤 '+T('Try again','Ulitin');
+  say(T('Let us sound it out.','Basahin natin ang mga pantig.'),.9).then(()=>{if(kind==='word'&&typeof ySoundOut==='function'){const t=document.getElementById('tiles');if(t)t.classList.remove('merged');return ySoundOut(true).then(()=>{const t2=document.getElementById('tiles');if(t2)t2.classList.add('merged')})}return say(target,.7)})}
+function micPage(btn,target,alts,lang){const C=YL.cur;const m=sentHeard(target,alts);C.mt=(C.mt||0)+1;const chips=[...document.querySelectorAll('#chips .chip')];
+  chips.forEach((c,j)=>{c.classList.remove('miss','said');c.classList.add(m.hit[j]?'said':'miss')});
+  if(m.frac>=.75){P.yk.mic.ok++;P.yk.spoke=(P.yk.spoke||0)+1;const bonus=2;gain({soldiers:bonus});P.yk.warriors+=bonus;YL.gained+=bonus;save();SFX.coin();micHead();
+    chips.forEach(c=>c.classList.remove('miss'));btn.outerHTML=`<span class="pill" style="background:#c8f7d4;font-size:17px">🎤 ${T('You read the whole sentence!','Nabasa mo ang buong pangungusap!')} +${bonus} 💂</span>`;
+    micFb('','');say(T('Wonderful reading!','Napakahusay magbasa!'),.9).then(()=>{if(YL&&!YL.cur.kind&&typeof yReadDone==='function')yReadDone()});return}
+  const miss=chips.filter((c,j)=>!m.hit[j]).map(c=>c.textContent);
+  if(C.mt>=2&&m.frac>=.4){micFb(T('Good reading! The orange words are tricky — tap them to hear them. 👆','Magaling! Pindutin ang mga kulay-kahel na salita para marinig. 👆'),'warn');btn.remove();say(T('Good reading! Let us practice the orange words.','Magaling! Sanayin natin ang mga salitang kulay-kahel.'),.9).then(()=>say(miss.join(', '),.7));return}
+  micFb(T(`Let's read the <span style="color:#e67e22">orange</span> words together, then try again!`,`Basahin natin ang mga salitang <span style="color:#e67e22">kulay-kahel</span>, saka ulitin!`),'warn');btn.innerHTML='🎤 '+T('Read it again','Basahin muli');
+  (async()=>{const tok=YL.tok;await say(T('Listen.','Pakinggan.'),.9);for(const c of chips.filter((c,j)=>!m.hit[j])){if(!YL||YL.tok!==tok)return;c.classList.add('on');await say(c.textContent,.7);c.classList.remove('on');await sleep(120)}})()}
+// the small "Say it!" bonus after a word is finished
+function micSay(target,btn){if(!micReady()){btn.remove();return}btn.classList.add('micbtn');micGo('after',btn)}
+
+// ---------- parent switch ----------
+function micToggle(){if(micOn()){P.settings.mic=false;save();micStop();toast('🎤 Listening is off');scrYoung();return}
+  const a=4+Math.floor(Math.random()*6),b=6+Math.floor(Math.random()*4);
+  const ok=micAvail();
+  modal(`<div class="kid"><h2>🎤 Say it! — for parents</h2>
+   <p>When this is on, your child can tap <b>🎤 Say it!</b> and read words and sentences out loud. TUDLO checks if the word was read correctly and gives bonus warriors.</p>
+   <ul style="line-height:1.5"><li>It listens <b>only while the 🎤 button is red</b>, for a few seconds.</li>
+   <li>TUDLO does not record or keep any audio. To turn speech into text, the phone's speech service (usually <b>Google</b>) processes it, and it usually needs <b>internet</b>.</li>
+   <li>It checks whole words, not each letter sound, and can mishear young voices — your child can always tap the answer instead.</li></ul>
+   ${ok?'':`<p class="fb warn">This device or browser can't listen. Use the TUDLO Android app, or open tudlo.madyaw.com in Chrome.</p>`}
+   <p><b>Grown-ups only:</b> what is ${a} × ${b}?</p><input id="micpin" inputmode="numeric" style="font-size:22px;width:120px;padding:6px;border-radius:10px;border:2px solid #ccc">
+   <div class="row" style="margin-top:12px"><button class="btn green" onclick="micAgree(${a*b})">✔ Turn on listening</button><button class="btn sec" onclick="closeModal()">Cancel</button></div></div>`)}
+function micAgree(ans){const v=+(document.getElementById('micpin')||{}).value;if(v!==ans){toast('That answer is not right — ask a grown-up 🙂');return}
+  P.settings.mic=true;save();closeModal();
+  const after=()=>{toast('🎤 Listening is on! Look for the 🎤 Say it! button.');scrYoung()};
+  try{if(window.AndroidSTT&&AndroidSTT.ask){window.__micPerm=g=>{window.__micPerm=null;if(!g){toast('🎤 Please allow the microphone for TUDLO in the phone settings.')}after()};AndroidSTT.ask();return}}catch(e){}
+  after()}
+// stop listening when the child moves on
+{const _n=yNext;yNext=function(){micStop();return _n.apply(this,arguments)};const _g=go;go=function(){micStop();return _g.apply(this,arguments)}}
+// styles
+(function(){const s=document.createElement('style');s.textContent=`
+.micbtn{background:linear-gradient(#ff7a6b,#e8453c)!important;color:#fff!important;font-size:19px;padding:12px 20px;border-radius:999px;box-shadow:0 4px 0 #b3322b}
+.micbtn.listen{background:linear-gradient(#ff4d4d,#c0001a)!important;animation:micpulse .9s infinite}
+.micbtn.hot{outline:4px solid #ffd166}
+@keyframes micpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+.mbars{display:inline-flex;gap:3px;align-items:flex-end;height:18px;vertical-align:middle}
+.mbars i{width:4px;background:#fff;border-radius:2px;animation:mbar .6s infinite alternate}
+.mbars i:nth-child(2){animation-delay:.2s}.mbars i:nth-child(3){animation-delay:.4s}
+@keyframes mbar{from{height:4px}to{height:18px}}
+.tile.said{background:#2ecc71!important;color:#fff!important;transform:translateY(-4px);transition:.15s}
+.chip.said{background:#c8f7d4!important;border-color:#2ecc71!important}
+.chip.miss{background:#ffe1c2!important;border-color:#e67e22!important;color:#a04000}
+`;document.head.appendChild(s)})();
 // TUDLO grade pack — Grade 2 (MATATAG: Filipino, English, Mathematics, GMRC, Makabansa)
 (function(){
 function compare(i){const a=R(100,999);let b=a+pick([-R(1,9),R(1,9),-R(10,90),R(10,90),-R(100,300),R(100,300)]);b=Math.max(100,Math.min(999,b));if(b===a)b=a+1;
