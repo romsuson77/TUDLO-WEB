@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>TUDLO · App Downloads</title>
+<style>
+body{margin:0;font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;color:#2b1d0e;background:radial-gradient(1000px 500px at 50% -10%,#3a5199,#1b2a52 50%,#0f1830);min-height:100vh}
+#app{max-width:860px;margin:0 auto;padding:14px 12px 40px}
+.hero{text-align:center;color:#fff;padding:10px 0}.hero h1{font-family:Georgia,serif;color:#f2b632;letter-spacing:3px;margin:6px 0;font-size:34px;text-shadow:0 3px 0 #8a5a00}.hero p{color:#ffe9b0;margin:4px 0}
+.card{background:#fbf1d9;border-radius:18px;padding:16px;box-shadow:0 8px 0 rgba(0,0,0,.22),inset 0 0 0 3px #e7cf98;margin:12px 0;display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.ic{font-size:54px;width:70px;text-align:center}.info{flex:1;min-width:200px}.info h2{font-family:Georgia,serif;margin:0 0 4px}
+.pill{display:inline-block;border-radius:99px;padding:2px 10px;font-size:12px;font-weight:800;background:#e9dcc0;margin-right:4px}.pill.beta{background:#ffe0c2;color:#9a4a00}.pill.stable{background:#c8f7d4;color:#1d6b3d}
+.btn{display:inline-block;background:linear-gradient(#ffd25e,#f2b632);color:#3a2408;font-weight:800;padding:10px 16px;border-radius:12px;box-shadow:0 4px 0 #c98a12;text-decoration:none;margin-top:8px}
+.qr{background:#fff;border-radius:12px;padding:6px;text-align:center;font-size:11px;color:#7a6a52;min-width:120px}.qr img{display:block;margin:auto}
+.muted{color:#7a6a52}ol li{margin:6px 0}code{background:#fff;padding:1px 6px;border-radius:6px}
+.help{background:#fbf1d9;border-radius:18px;padding:16px;box-shadow:inset 0 0 0 3px #e7cf98}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+// ===================== EDIT THIS LIST (up to 5 apps) =====================
+// file    = the APK's name exactly as uploaded to the GitHub repo (same folder as this page)
+// To update an app: upload the new APK with the SAME file name, then change version/date/notes here.
+const APPS = [
+  { icon:'🏰', name:'TUDLO', file:'tudlo.apk', version:'1.0', date:'2026-11-19', channel:'beta',
+    notes:'Kinder to Grade 6 learning game. Loads the live game from tudlo.madyaw.com, so most updates arrive without reinstalling.' },
+  // { icon:'👨‍👩‍👧', name:'TUDLO Parent', file:'tudlo-parent.apk', version:'1.0', date:'2026-11-20', channel:'beta', notes:'Parent progress app.' },
+  // { icon:'🧪', name:'TUDLO (test build)', file:'tudlo-test.apk', version:'1.1-test', date:'2026-11-21', channel:'test', notes:'For testers only.' },
+];
+// ==========================================================================
+
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function render(){
+  const base=location.href.replace(/[^/]*$/,'');
+  document.getElementById('app').innerHTML=`<div class="hero"><h1>TUDLO</h1><p>App downloads · for testers and families</p></div>
+  ${APPS.slice(0,5).map((a,i)=>`<div class="card"><div class="ic">${esc(a.icon||'📱')}</div>
+    <div class="info"><h2>${esc(a.name)}</h2><span class="pill ${a.channel==='stable'?'stable':'beta'}">${esc(a.channel||'beta')}</span><span class="pill">v${esc(a.version)}</span><span class="pill">${esc(a.date)}</span><span class="pill" id="sz${i}">…</span>
+      <p>${esc(a.notes||'')}</p><a class="btn" href="${esc(a.file)}" download>⬇️ Download APK</a></div>
+    <div class="qr" id="qr${i}">Scan with a phone<br><small>(loading QR…)</small></div></div>`).join('')}
+  <div class="help"><h3 style="margin-top:0">📲 How to install</h3><ol>
+   <li>On the Android phone, open this page (or scan the QR code) and tap <b>Download APK</b>.</li>
+   <li>Open the downloaded file. If asked, allow <b>"Install unknown apps"</b> for your browser or Files app.</li>
+   <li>If Play Protect warns you, tap <b>More details → Install anyway</b> (normal for apps not from the Play Store).</li>
+   <li><b>Updating:</b> download the newer APK and install it over the old one — progress is kept. (Only works if both were built on the same PC/keystore.)</li></ol>
+   <p class="muted">These are test builds shared directly, not from Google Play.</p></div>`;
+  // file sizes
+  APPS.slice(0,5).forEach((a,i)=>fetch(a.file,{method:'HEAD'}).then(r=>{const el=document.getElementById('sz'+i);if(!r.ok){el.textContent='⚠️ not uploaded yet';return}const n=+r.headers.get('content-length');el.textContent=n?(n/1048576).toFixed(1)+' MB':'ready'}).catch(()=>{}));
+  // QR codes
+  const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js';
+  s.onload=()=>APPS.slice(0,5).forEach((a,i)=>{try{const q=qrcode(0,'M');q.addData(base+a.file);q.make();document.getElementById('qr'+i).innerHTML=q.createImgTag(3,6)+'Scan to download'}catch(e){}});
+  s.onerror=()=>APPS.forEach((a,i)=>{const e=document.getElementById('qr'+i);if(e)e.innerHTML='<small>QR needs internet</small>'});
+  document.head.appendChild(s);
+}
+render();
+</script>
+</body>
+</html>

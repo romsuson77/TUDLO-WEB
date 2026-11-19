@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TUDLO Parent</title>
+<style>
+:root{--ink:#2b1d0e;--parch:#fbf1d9;--gold:#f2b632;--gold2:#c98a12;--navy:#14213d;--green:#2e9d5b;--red:#d64541;--blue:#3d7be8;--muted:#7a6a52}
+*{box-sizing:border-box}body{margin:0;font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;color:var(--ink);background:radial-gradient(1000px 500px at 50% -10%,#3a5199,#1b2a52 50%,#0f1830);min-height:100vh}
+#app{max-width:900px;margin:0 auto;padding:12px 12px 40px}
+h1,h2,h3{font-family:Georgia,serif;margin:.2em 0 .4em}
+.hero{text-align:center;color:#fff;padding:14px 0 4px}.hero .logo{font-family:Georgia,serif;font-size:44px;font-weight:900;color:var(--gold);letter-spacing:4px;text-shadow:0 4px 0 #8a5a00}.hero p{color:#ffe9b0;margin:4px 0}
+.card{background:var(--parch);border-radius:18px;padding:16px;box-shadow:0 8px 0 rgba(0,0,0,.22),inset 0 0 0 3px #e7cf98;margin:12px 0}
+.btn{background:linear-gradient(#ffd25e,var(--gold));color:#3a2408;font-weight:800;font-size:15px;padding:10px 16px;border-radius:12px;border:0;box-shadow:0 4px 0 var(--gold2);cursor:pointer;font-family:inherit}
+.btn.sec{background:linear-gradient(#fff,#e9dcc0);box-shadow:0 4px 0 #b9a47a}.btn.red{background:linear-gradient(#ff7a6b,var(--red));color:#fff;box-shadow:0 4px 0 #8e2622}.btn.sm{font-size:13px;padding:6px 10px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.muted{color:var(--muted)}
+textarea{width:100%;height:90px;border-radius:12px;border:3px solid #e1c98d;padding:10px;font-size:13px;font-family:monospace;background:#fffdf5}
+.kids{display:flex;gap:8px;flex-wrap:wrap}.kid{background:#fff;border-radius:14px;padding:8px 12px;border:3px solid transparent;cursor:pointer;font-weight:800;display:flex;gap:8px;align-items:center}.kid.on{border-color:var(--gold2);background:#fff3c4}.kid span{font-size:26px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}.tile{background:#fff;border-radius:14px;padding:10px}.tile small{color:var(--muted);font-weight:700}.tile b{display:block;font-size:24px}
+.bar{height:12px;background:#0001;border-radius:99px;overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--green),#7be3a1)}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;font-size:14px}th{background:#e9dcc0;text-align:left;padding:7px}td{padding:6px 7px;border-top:1px solid #f0e6cf;vertical-align:middle}
+.warn{background:#fff0ec;border-left:6px solid var(--red);border-radius:12px;padding:10px 14px}.good{background:#e9f8ee;border-left:6px solid var(--green);border-radius:12px;padding:10px 14px}
+.tips li{margin:6px 0}.pill{display:inline-block;border-radius:99px;padding:2px 10px;font-size:12px;font-weight:800;background:#e9dcc0}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#14213dee;color:#fff;font-weight:800;padding:8px 16px;border-radius:99px;display:none;border:2px solid var(--gold)}
+svg text{font-family:inherit}
+</style>
+</head>
+<body>
+<div id="app"></div><div id="toast"></div>
+<script>
+const KEY='tudlo_parent_v1';let DB={kids:{},sel:null};let MEM=false;
+function load(){try{const s=localStorage.getItem(KEY);if(s)DB=JSON.parse(s)}catch(e){MEM=true}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(DB))}catch(e){MEM=true}}
+const $=s=>document.querySelector(s);const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function toast(m){const t=$('#toast');t.textContent=m;t.style.display='block';clearTimeout(t._h);t._h=setTimeout(()=>t.style.display='none',2600)}
+function chk36(s){let h=0;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))%46656;return h.toString(36).padStart(3,'0')}
+function decode(code){code=String(code).trim().replace(/\s+/g,'');const m=code.match(/TUDLO1\.([A-Za-z0-9_-]+)\.([0-9a-z]{3})/);if(!m)throw new Error('This is not a TUDLO progress code. It should start with TUDLO1.');if(chk36(m[1])!==m[2])throw new Error('The code looks incomplete or has a typo. Please copy the whole code again.');
+  let b=m[1].replace(/-/g,'+').replace(/_/g,'/');while(b.length%4)b+='=';const o=JSON.parse(decodeURIComponent(escape(atob(b))));if(o.v!==1)throw new Error('This code is from a newer TUDLO version.');return o}
+function addReport(o){const k=(o.n||'Child')+'|'+(o.c||'');const K=DB.kids[k]=DB.kids[k]||{name:o.n,crest:o.c,reports:[]};if(K.reports.some(r=>r.t===o.t)){toast('This report was already added.');DB.sel=k;save();render();return}
+  K.reports.push(o);K.reports.sort((a,b)=>a.t-b.t);if(K.reports.length>60)K.reports.shift();DB.sel=k;save();render();toast('✅ Report added for '+o.n)}
+function addFromText(){try{addReport(decode($('#codein').value));$('#codein').value=''}catch(e){toast('⚠️ '+e.message)}}
+let JSQR=null;function loadJsQR(){if(window.jsQR)return Promise.resolve();if(JSQR)return JSQR;JSQR=new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js';s.onload=()=>window.jsQR?res():rej();s.onerror=()=>{JSQR=null;rej()};document.head.appendChild(s)});return JSQR}
+function scanPhoto(inp){const f=inp.files&&inp.files[0];if(!f)return;toast('🔎 Reading the QR code…');const img=new Image();const url=URL.createObjectURL(f);img.onload=()=>{loadJsQR().then(()=>{const tries=[1600,1000,700];let found=null;for(const W of tries){const sc=Math.min(1,W/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=Math.round(img.width*sc);c.height=Math.round(img.height*sc);const x=c.getContext('2d');x.drawImage(img,0,0,c.width,c.height);const d=x.getImageData(0,0,c.width,c.height);const r=jsQR(d.data,c.width,c.height,{inversionAttempts:'attemptBoth'});if(r&&r.data){found=r.data;break}}
+  URL.revokeObjectURL(url);inp.value='';if(!found){toast('⚠️ No QR found. Take a closer, sharper photo, or paste the code instead.');return}try{addReport(decode(found))}catch(e){toast('⚠️ '+e.message)}}).catch(()=>toast('⚠️ QR reading needs internet. Paste the code instead.'))};img.src=url}
+const ago=t=>{const d=Math.floor((Date.now()-t)/864e5);return d<=0?'today':d===1?'yesterday':d+' days ago'};
+const GN=g=>g===1?'Kinder–Grade 1':'Grade '+g;
+function barChart(days){const W=320,H=130,mx=Math.max(20,...days.map(d=>d[0]));const bw=W/7;const lbl=[];for(let i=6;i>=0;i--){const d=new Date(Date.now()-i*864e5);lbl.push(['Su','Mo','Tu','We','Th','Fr','Sa'][d.getDay()])}
+  const y15=H-20-(15/mx)*(H-34);return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:480px"><line x1="0" x2="${W}" y1="${y15}" y2="${y15}" stroke="#2e9d5b" stroke-dasharray="5 5"/><text x="${W-4}" y="${y15-4}" text-anchor="end" font-size="10" fill="#2e9d5b">15-min goal</text>${days.map((d,i)=>{const h=(d[0]/mx)*(H-34);return `<rect x="${i*bw+8}" y="${H-20-h}" width="${bw-16}" height="${Math.max(h,1)}" rx="5" fill="${d[0]>=10?'#3d7be8':'#f2b632'}"/><text x="${i*bw+bw/2}" y="${H-20-h-4}" text-anchor="middle" font-size="11" font-weight="700">${d[0]||''}</text><text x="${i*bw+bw/2}" y="${H-5}" text-anchor="middle" font-size="11" fill="#7a6a52">${lbl[i]}</text>`}).join('')}</svg>`}
+function trend(reps){if(reps.length<2)return '<p class="muted">Add a new code next week to see a progress trend here.</p>';const pts=reps.slice(-10).map(r=>({t:r.t,v:r.r.reduce((a,x)=>a+x[3],0),w:r.w}));const W=320,H=120,mx=Math.max(1,...pts.map(p=>p.v));const xs=i=>20+i*(W-40)/Math.max(1,pts.length-1);const ys=v=>H-20-(v/mx)*(H-40);
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:480px"><polyline fill="none" stroke="#3d7be8" stroke-width="3" points="${pts.map((p,i)=>xs(i)+','+ys(p.v)).join(' ')}"/>${pts.map((p,i)=>`<circle cx="${xs(i)}" cy="${ys(p.v)}" r="4" fill="#3d7be8"/><text x="${xs(i)}" y="${ys(p.v)-8}" text-anchor="middle" font-size="11" font-weight="700">${p.v}</text><text x="${xs(i)}" y="${H-4}" text-anchor="middle" font-size="9" fill="#7a6a52">${new Date(p.t).toLocaleDateString('en-PH',{month:'short',day:'numeric'})}</text>`).join('')}</svg><p class="muted">Levels finished, report by report.</p>`}
+const TIP={Math:'Use real things at home — coins, fruit, the clock, a weighing scale at the palengke — and ask quick questions.',Reading:'Read together for 10 minutes. Let your child point to each word.',Tagalog:'Speak Tagalog words at home and match them to Bisaya words your child knows.',Filipino:'Read a short Filipino story aloud and ask "sino, ano, saan, bakit".',English:'Ask your child to tell about their day in English, in short sentences.',Science:'Explore at home: what floats, what melts, how plants grow.',Language:'Play "name it": point to things and name them, then describe them.',Makabansa:'Talk about your barangay, community helpers and Philippine symbols.',GMRC:'Praise kind and honest choices you see during the day.',AP:'Look at a Philippine map together and talk about places and heroes.',MAPEH:'Sing, clap rhythms, draw and play active games together.',EPP:'Let your child help with simple chores, gardening or a pretend store.','TLE/EPP':'Let your child help with simple chores, budgeting or a pretend store.',Business:'Visit the palengke together: read the weighing scale and compute the price.',Art:'Keep paper and crayons ready; ask your child to explain their drawing.'};
+function suggestions(o){const s=[];const wk=o.d.reduce((a,d)=>a+d[0],0),days=o.d.filter(d=>d[0]>0).length;
+  if(days<5)s.push(`<b>Make it a habit:</b> your child practiced on ${days} of the last 7 days. Aim for <b>10–15 minutes every day</b> — short daily practice beats one long session.`);else s.push(`<b>Great habit!</b> ${days} of 7 days with practice this week. Keep it up!`);
+  if(o.sr>0)s.push(`<b>${o.sr} skill${o.sr>1?'s':''} waiting for review.</b> "Today's Quest" brings missed questions back after 1, 3 and 7 days — doing the quest daily clears them.`);
+  o.wk.forEach(w=>s.push(`<b>Practice together: ${esc(w[0])}</b> (${GN(w[2])}) — first-try accuracy ${w[1]}%.`));
+  if(o.tw.length)s.push(`<b>Tricky words to read together:</b> ${o.tw.map(esc).join(', ')}.`);
+  const weakRoads=o.r.filter(r=>r[6]>=0&&r[6]<70);[...new Set(weakRoads.map(r=>r[2]))].slice(0,3).forEach(n=>{if(TIP[n])s.push(`<b>${esc(n)} at home:</b> ${TIP[n]}`)});
+  if(o.qs>=5)s.push(`🔥 <b>${o.qs}-day quest streak!</b> Celebrate this with your child.`);return s}
+function render(){const ks=Object.entries(DB.kids);const sel=DB.sel&&DB.kids[DB.sel]?DB.sel:(ks[0]&&ks[0][0]);
+  let h=`<div class="hero"><div class="logo">TUDLO</div><p><b>Parent</b> · Guiding Every Student Toward Success</p><p><a href="index.html" style="color:#ffd25e;font-weight:800">◀ Back to the TUDLO game</a></p></div>
+  <div class="card"><h2>➕ Add a progress report</h2><p class="muted" style="margin-top:0">In your child's TUDLO app, tap <b>📲 Send progress to parent</b>. Then paste the code here, or take a photo of the QR code.</p>
+   <textarea id="codein" placeholder="Paste the TUDLO1… code here"></textarea>
+   <div class="row" style="margin-top:8px"><button class="btn" onclick="addFromText()">✅ Add report</button><label class="btn sec" style="display:inline-block">📷 Photo of QR code<input type="file" accept="image/*" capture="environment" style="display:none" onchange="scanPhoto(this)"></label></div>
+   ${MEM?'<p class="warn">This browser is not saving data, so reports last only while this page is open.</p>':''}</div>`;
+  if(!ks.length){h+=`<div class="card"><h3>How it works</h3><ol class="tips"><li>Your child plays TUDLO on their device.</li><li>Once a week, they tap <b>📲 Send progress to parent</b> and show you the QR or send you the code.</li><li>You add it here. TUDLO Parent keeps every report on <b>this device</b> so you can see progress over time.</li></ol><p class="muted">Privacy: nothing is uploaded. The code holds only your child's first name, crest and learning progress.</p></div>`;$('#app').innerHTML=h;return}
+  const K=DB.kids[sel];const o=K.reports[K.reports.length-1];const prev=K.reports.length>1?K.reports[K.reports.length-2]:null;
+  const mins=o.d.reduce((a,d)=>a+d[0],0),q=o.d.reduce((a,d)=>a+d[1],0),ok=o.d.reduce((a,d)=>a+d[2],0);const done=o.r.reduce((a,x)=>a+x[3],0);const pdone=prev?prev.r.reduce((a,x)=>a+x[3],0):null;const stale=(Date.now()-o.t)>8*864e5;
+  h+=`<div class="card"><div class="kids">${ks.map(([k,v])=>`<div class="kid ${k===sel?'on':''}" onclick="DB.sel='${esc(k).replace(/'/g,'&#39;')}';save();render()"><span>${esc(v.crest)}</span>${esc(v.name)}</div>`).join('')}</div></div>
+  <div class="card"><div class="row"><span style="font-size:44px">${esc(K.crest)}</span><div style="flex:1"><h2 style="margin:0">${esc(K.name)}</h2><span class="pill">${GN(o.g)}</span> <span class="muted">Last report: ${ago(o.t)}</span></div></div>
+   ${stale?`<p class="warn">⏰ The last report is more than a week old. Ask ${esc(K.name)} for a new code!</p>`:''}
+   <div class="tiles" style="margin-top:10px">${[['Minutes this week',mins+' min'],['Questions this week',q],['First-try accuracy (week)',q?Math.round(ok/q*100)+'%':'—'],['Levels finished',done+(pdone!=null?` <small style="color:#2e9d5b">+${Math.max(0,done-pdone)}</small>`:'')],['Quest streak','🔥 '+o.qs+' days'],['Warriors earned','💂 '+o.w],['Battles won','🏆 '+o.b],['Skills to review','🔁 '+o.sr]].map(([a,b])=>`<div class="tile"><small>${a}</small><b>${b}</b></div>`).join('')}</div></div>
+  <div class="card"><h3>📅 Practice minutes — last 7 days</h3>${barChart(o.d)}</div>
+  <div class="card"><h3>💡 What to do this week</h3><ul class="tips">${suggestions(o).map(x=>`<li>${x}</li>`).join('')}</ul></div>
+  <div class="card"><h3>📚 Progress by subject</h3>${o.r.length?`<table><tr><th>Grade</th><th>Subject</th><th>Levels</th><th>Stars</th><th>First-try</th></tr>${o.r.map(r=>`<tr><td>${r[0]===1?'K–1':'G'+r[0]}</td><td>${r[1]} ${esc(r[2])}</td><td style="min-width:110px"><div class="bar"><i style="width:${Math.round(r[3]/Math.max(1,r[4])*100)}%"></i></div><small>${r[3]} / ${r[4]}</small></td><td>⭐ ${r[5]}</td><td>${r[6]<0?'—':`<b style="color:${r[6]>=80?'#2e9d5b':r[6]>=60?'#c98a12':'#d64541'}">${r[6]}%</b>`}</td></tr>`).join('')}</table>`:'<p class="muted">No levels finished yet.</p>'}
+   ${o.k?`<p style="margin-top:10px"><b>🏰 Grade 6 Pre-Algebra Kingdom:</b> ${o.k[0]}/13 territories · mastery ${o.k[1]}% · accuracy ${o.k[2]}% · Commander Level ${o.k[3]}</p>`:''}</div>
+  ${o.wk.length||o.tw.length?`<div class="card"><h3>🆘 Needs a little help</h3>${o.wk.length?`<table><tr><th>Level</th><th>Grade</th><th>First-try</th></tr>${o.wk.map(w=>`<tr><td>${esc(w[0])}</td><td>${GN(w[2])}</td><td><b style="color:#d64541">${w[1]}%</b></td></tr>`).join('')}</table>`:''}${o.tw.length?`<p><b>Tricky words:</b> ${o.tw.map(esc).join(', ')}</p>`:''}</div>`:`<div class="card good">✅ No weak spots in this report. Keep practicing a little every day!</div>`}
+  <div class="card"><h3>📈 Progress over time</h3>${trend(K.reports)}<p class="muted">${K.reports.length} report${K.reports.length>1?'s':''} saved on this device.</p>
+   <div class="row"><button class="btn sec sm" onclick="copySummary()">📋 Copy summary for the teacher</button><button class="btn red sm" onclick="delKid()">🗑️ Remove ${esc(K.name)}</button></div></div>
+  <p class="muted" style="text-align:center;color:#c9d6ff">Reports stay only on this device. Nothing is uploaded.</p>`;
+  $('#app').innerHTML=h}
+function copySummary(){const K=DB.kids[DB.sel];if(!K)return;const o=K.reports[K.reports.length-1];const t=`TUDLO progress — ${K.name} (${GN(o.g)}), ${new Date(o.t).toLocaleDateString('en-PH')}\nMinutes this week: ${o.d.reduce((a,d)=>a+d[0],0)} · Quest streak: ${o.qs} days · Skills to review: ${o.sr}\n`+o.r.map(r=>`${r[0]===1?'K-1':'G'+r[0]} ${r[2]}: ${r[3]}/${r[4]} levels, first-try ${r[6]<0?'-':r[6]+'%'}`).join('\n')+(o.wk.length?`\nNeeds help: ${o.wk.map(w=>w[0]+' ('+w[1]+'%)').join(', ')}`:'');
+  try{navigator.clipboard.writeText(t).then(()=>toast('📋 Summary copied'),()=>prompt0(t))}catch(e){prompt0(t)}}
+function prompt0(t){const a=$('#codein');a.value=t;a.select();toast('Select and copy the text in the box')}
+function delKid(){const K=DB.kids[DB.sel];if(!K)return;const b=event.target;if(b.dataset.c!=='1'){b.dataset.c='1';b.textContent='Tap again to remove';setTimeout(()=>{b.dataset.c='';render()},3000);return}delete DB.kids[DB.sel];DB.sel=null;save();render()}
+load();render();
+try{if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{})}catch(e){}
+</script>
+</body>
+</html>
