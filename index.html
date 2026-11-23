@@ -1039,7 +1039,7 @@ function scrTitle(){P=null;const profs=Object.entries(STORE.profiles);
    <div class="crests">${CRESTS.map(c=>`<button class="${c===newCrest?'on':''}" onclick="newCrest='${c}';document.querySelectorAll('.crests button').forEach(b=>b.classList.toggle('on',b.textContent==='${c}'))">${c}</button>`).join('')}</div>
    <div class="center" style="margin-top:14px"><button class="btn" onclick="createProfile()">🏰 Found my Kingdom</button></div>
    ${MEMONLY?'<p class="muted center">Note: this browser is not allowing saving, so progress lasts only while this page is open.</p>':''}
-  </div><p class="center acr">Kinder to Grade 6 · all MATATAG subjects · Grade 6 & First Year High School Pre-Algebra</p><p class="center" style="color:#9fb0d8;font-size:12px;margin:2px 0 0">TUDLO v6.2 · 19 Nov 2026 · 🎤 Say it!</p>`)}
+  </div><p class="center acr">Kinder to Grade 6 · all MATATAG subjects · Grade 6 & First Year High School Pre-Algebra</p><p class="center" style="color:#9fb0d8;font-size:12px;margin:2px 0 0">TUDLO v6.4 · 23 Nov 2026 · 🎤 Say it!</p>`)}
 function createProfile(){const n=($('#pname').value||'').trim();if(!n){$('#pname').focus();toast('✍️ Type your name first, Commander!');return}
   const id='p'+Date.now();STORE.profiles[id]=newProfile(n,newCrest);STORE.current=id;P=STORE.profiles[id];if(newMode!=='g6'){P.young=true;P.yk.grade=newMode==='k1'?1:newGrade;P.intro=true;P.assess={done:true,skipped:true,res:{}};save();scrYoung();return}save();scrKingdom()}
 function pickProfile(id){STORE.current=id;P=STORE.profiles[id];migrate();save();P.young?scrYoung():scrKingdom()}
@@ -1545,8 +1545,8 @@ try{speechSynthesis.onvoiceschanged=pickVoice;pickVoice()}catch(e){}
 function hasFilVoice(){try{if(window.AndroidTTS)return !!(AndroidTTS.hasFil&&AndroidTTS.hasFil());return !!VOICE.fil}catch(e){return false}}
 function filToEn(t){return String(t).toLowerCase().replace(/\bmga\b/g,'MAHNGAH').replace(/\bmay\b/g,'MY').replace(/\bay\b/g,'EYE').replace(/[a-zñ]+/g,w=>{let s=w.replace(/ñ/g,'ny');s=s.replace(/ay\b/g,'#IGH#').replace(/aw\b/g,'#OW#').replace(/oy\b/g,'#OY#').replace(/iw\b/g,'#EEW#');s=s.replace(/a/g,'ah').replace(/e/g,'eh').replace(/i/g,'ee').replace(/o/g,'oh').replace(/u/g,'oo');return s.replace(/#IGH#/g,'igh').replace(/#OW#/g,'ow').replace(/#OY#/g,'oy').replace(/#EEW#/g,'eew')}).toLowerCase()}
 function filPrep(t){const raw=String(t).trim();const letters=raw.replace(/[^a-zñ]/gi,'');const single=!/\s/.test(raw);
-  if(single&&(letters.length<=3||/^mga$/i.test(letters)))return[filToEn(letters),'en'];   // a lone syllable/short word → sound-it-out spelling, English voice
-  if(hasFilVoice())return[raw.replace(/\bmga\b/gi,'manga'),'fil'];                        // Filipino voice reads words & sentences
+  if(hasFilVoice()){if(single&&letters.length<=2)return[filToEn(letters),'en'];return[raw.replace(/\bmga\b/gi,'manga').replace(/\bng\b/gi,'nang'),'fil']}   // Filipino voice: real words & sentences; only 1–2 letter syllables are respelled
+  if(single&&(letters.length<=3||/^mga$/i.test(letters)))return[filToEn(letters),'en'];   // no Filipino voice: short words → sound-it-out spelling, English voice
   return[filToEn(raw),'en']}                                                              // no Filipino voice on this device → phonetic spelling
 const TTSW={};let TTSN=0;window.__ttsDone=id=>{const f=TTSW[id];if(f)f()};
 function say(t,rate,onb,lang){if(lang==null)lang=(YL&&YL.L&&YL.L.lang)||(typeof BT!=='undefined'&&BT&&BT.L&&BT.L.lang)||'en';if(lang==='fil'&&t){const pr=filPrep(t);t=pr[0];lang=pr[1];onb=lang==='fil'?onb:null}if(window.AndroidTTS){if(!P||P.settings.voice===false||!t)return Promise.resolve();return new Promise(res=>{const id='u'+(++TTSN);let done=false;const fin=()=>{if(!done){done=true;delete TTSW[id];res()}};TTSW[id]=fin;try{AndroidTTS.speak(String(t),lang==='fil'?'fil':'en',rate||.85,id)}catch(e){fin()}setTimeout(fin,1500+String(t).length*110/(rate||.85))})}return new Promise(res=>{if(!P||P.settings.voice===false||!window.speechSynthesis||!t){res();return}
@@ -2191,9 +2191,9 @@ function mqWord(i){const[n,t]=pick(WPN);const big=i>=5;const add=Math.random()<.
   const r=add?a+b:a-b;const q=add?`${n} has ${a} ${t}. ${pick(['Nanay','Tatay','A friend','Lolo'])} gives ${n} ${b} more. How many ${t} does ${n} have now?`:`${n} picked ${a} ${t}. ${n} gave ${b} to a neighbor. How many ${t} are left?`;
   return{html:`<div class="psg" style="font-size:20px">📝 ${q}</div>`,say:q,ch:numCh(r,0,120),a:r,help:{html:`<p class="ktip">💡 ${add?'"More" means ADD':'"Gave away" and "left" mean SUBTRACT'}: ${a} ${add?'+':'−'} ${b}</p>`,say:add?`More means add. ${a} plus ${b}.`:`Gave away means subtract. ${a} minus ${b}.`},why:`${a} ${add?'+':'−'} ${b} = ${r}.`}}
 function billH(v){return v>=20&&v!==20?`<span class="bill b${v}">₱${v}</span>`:coinH(v)}
-function mqMoney2(i){const kinds=i<4?[1,5,10,20]:[5,10,20,50,100];const k=R(2,i<4?3:4);const cs=Array.from({length:k},()=>pick(kinds)).sort((a,b)=>b-a);const sum=cs.reduce((a,b)=>a+b,0);let run=0;const runs=cs.map(v=>run+=v);
+function mqMoney2(i){const kinds=i<4?[1,5,10,20]:[5,10,20,50,100];let cs;do{const k=R(2,i<4?3:4);cs=Array.from({length:k},()=>pick(kinds)).sort((a,b)=>b-a)}while(cs.reduce((a,b)=>a+b,0)>100);const sum=cs.reduce((a,b)=>a+b,0);let run=0;const runs=cs.map(v=>run+=v);
   if(i>=6&&Math.random()<.4){const price=R(5,Math.min(95,sum-1));return{html:`<div class="kq">You have:</div><div class="coins">${cs.map(billH).join('')}</div><div class="kq">Can you buy a toy for ₱${price}? 🧸</div>`,say:`Can you buy a toy for ${price} pesos?`,ch:[{h:'<span class="kem">✅</span><small>Yes</small>',v:1},{h:'<span class="kem">❌</span><small>No</small>',v:0}],a:sum>=price?1:0,help:{html:`<div class="coins">${cs.map((v,j)=>`<span class="cw">${billH(v)}<b>₱${runs[j]}</b></span>`).join('')}</div>`,say:`Count your money first: ${runs.join(', ')}.`},why:`You have ₱${sum}. ${sum>=price?'That is enough!':'That is not enough.'}`}}
-  return{html:`<div class="kq">How much money?</div><div class="coins">${cs.map(billH).join('')}</div>`,say:'How much money is this? Start with the biggest.',ch:numCh(sum,1,400,'₱'),a:sum,help:{html:`<div class="coins">${cs.map((v,j)=>`<span class="cw">${billH(v)}<b>₱${runs[j]}</b></span>`).join('')}</div>`,say:`Count on: ${runs.join(', ')} pesos.`},why:`The money makes ₱${sum}.`}}
+  return{html:`<div class="kq">How much money?</div><div class="coins">${cs.map(billH).join('')}</div>`,say:'How much money is this? Start with the biggest.',ch:numCh(sum,1,100,'₱'),a:sum,help:{html:`<div class="coins">${cs.map((v,j)=>`<span class="cw">${billH(v)}<b>₱${runs[j]}</b></span>`).join('')}</div>`,say:`Count on: ${runs.join(', ')} pesos.`},why:`The money makes ₱${sum}.`}}
 YMATH.splice(YMATH.length-1,0,
  {id:'m20',land:'more',chain:'more',e:'💯',name:'Add & Subtract to 100',sub:'No regrouping · tens and ones',gen:mqTo100},
  {id:'m21',land:'more',chain:'more',e:'📝',name:'Word Problems',sub:'calamansi, mangoes, marbles…',gen:mqWord},
@@ -2696,6 +2696,52 @@ function micAgree(ans){const v=+(document.getElementById('micpin')||{}).value;if
 .chip.said{background:#c8f7d4!important;border-color:#2ecc71!important}
 .chip.miss{background:#ffe1c2!important;border-color:#e67e22!important;color:#a04000}
 `;document.head.appendChild(s)})();
+// ================= GRADE FIT (MATATAG): move lessons that are above Grade 1 into the grade where they belong =================
+// Grade 1 (MATATAG): Language, Reading & Literacy, Mathematics, Makabansa, GMRC. Science starts in Grade 3; English & Filipino subjects start in Grade 2.
+// G1 math: numbers to 100, + and − to 100 WITHOUT regrouping, money to ₱100, ½ and ¼, time (hour, half, quarter), non-standard measuring.
+const REGRADE=[
+  // Long-word phonics (magic e, vowel teams, 2–3 syllable words) → English 2 (formal English reading starts in Grade 2)
+  {to:2,road:'eng',ids:['r14','r15','r16','r17','r18','r19','r20','r21','r22','s4'],lands:['mountain','castle'],first:true},
+  // Making change needs subtraction WITH regrouping (Grade 2) → Math 2
+  {to:2,road:'math',ids:['b5'],landOf:'2m8'},
+  // Science is a Grade 3 subject → Science 3 (as the easy start)
+  {to:3,road:'sci',ids:['c1','c2','c3','c4','c5','c6'],lands:['life','body','earth'],first:true},
+  // Grams & kilograms are measured in Grade 3; paying for whole kilos uses × → Little Business 3
+  {to:3,road:{k:'biz',e:'🏪',name:'Business',full:'Little Business 3: Scales & Prices'},ids:['b1','b2','b3','b8'],lands:['scale']},
+  // Price for 250 g / 500 g needs fractions of a kilo → EPP 4 (next to Little Entrepreneur)
+  {to:4,road:'epp',ids:['b4'],landOf:'4p3'}
+];
+const REG_DROP_ROADS=['sci','biz','g2'];   // whole G1 roads that leave Grade 1 (Grade 2 Preview duplicates the Grade 2 pack)
+const REG_LANDS={};
+(function(){
+  // remember land objects, then take moved levels out of Grade 1
+  ROADS.forEach(r=>r.lands.forEach(l=>{REG_LANDS[l.k]=l}));
+  const moved=new Set(REGRADE.flatMap(m=>m.ids));
+  // b6 (money choices) → GMRC 1, b7 (design my store) → Art & Create
+  const keep=[['b6','gmrc'],['b7','art']];
+  keep.forEach(([id,rk])=>{const L=LVL(id),R=ROADS.find(r=>r.k===rk);if(!L||!R)return;
+    const lk=rk==='gmrc'?'g_biz':'a_biz';if(!R.lands.some(l=>l.k===lk))R.lands.push(rk==='gmrc'?{k:lk,e:'💡',name:'Smart with Money',sub:'Saving and good choices',bg:'#fff0d4'}:{k:lk,e:'🏪',name:'Create!',sub:'Design your own store',bg:'#fff0d4'});
+    L.land=lk;L.chain=L.id;delete L.boss;
+    const bi=R.list.findIndex(x=>x.boss&&x.from);R.list.splice(bi<0?R.list.length:bi,0,L);LVM[id]={L,road:R}});
+  ROADS.forEach(r=>{for(let i=r.list.length-1;i>=0;i--)if(moved.has(r.list[i].id))r.list.splice(i,1)});
+  // the Art road keeps its own levels; drop roads that left Grade 1
+  for(let i=ROADS.length-1;i>=0;i--)if(REG_DROP_ROADS.includes(ROADS[i].k))ROADS.splice(i,1);
+  GRADES[1].roads=ROADS.slice();
+  // Grade 1 bosses no longer pull from moved levels
+  ROADS.forEach(r=>r.list.forEach(L=>{if(L.from)L.from=L.from.filter(id=>!moved.has(id)&&LVL(id));if(L.pool)L.pool=L.pool.filter(id=>!moved.has(id))}));
+  const b8=LVL('b8');if(b8)b8.from=['b1','b2','b3'];
+  // Grade 1 money stays within ₱100
+  const m22=LVL('m22');if(m22)m22.sub='₱20 · ₱50 · ₱100 (up to ₱100) · can you buy it?';
+})();
+function applyRegrade(g,roads){REGRADE.filter(m=>m.to===g).forEach(m=>{
+  let R=typeof m.road==='string'?roads.find(r=>r.k===m.road):null;
+  if(!R){const d=typeof m.road==='object'?m.road:{k:m.road,e:'📘',name:m.road,full:m.road};R={k:d.k,e:d.e,name:d.name,full:d.full,lands:[],list:[]};roads.push(R)}
+  let landK=null;if(m.landOf){for(const r of roads){const x=r.list.find(l=>l.id===m.landOf);if(x){landK=x.land;break}}}
+  const ls=(m.lands||[]).map(k=>REG_LANDS[k]).filter(Boolean).map(l=>[l.k,l.e,l.name,l.sub,l.bg]);
+  if(ls.length){const have=new Set(R.lands.map(l=>Array.isArray(l)?l[0]:l.k));const add=ls.filter(l=>!have.has(l[0]));R.lands=m.first?[...add,...R.lands]:[...R.lands,...add]}
+  const Ls=m.ids.map(id=>LVL(id)).filter(Boolean);Ls.forEach(L=>{if(landK)L.land=landK;if(L.chain==null)L.chain='';});
+  if(m.first)R.list.unshift(...Ls);else{const bi=R.list.findIndex(x=>x.boss);R.list.splice(bi<0||!landK?R.list.length:bi,0,...Ls)}})}
+{const _gp=gradePack;gradePack=function(g,roads){try{applyRegrade(g,roads)}catch(e){console.warn('regrade',e)}return _gp(g,roads)}}
 // TUDLO grade pack — Grade 2 (MATATAG: Filipino, English, Mathematics, GMRC, Makabansa)
 (function(){
 function compare(i){const a=R(100,999);let b=a+pick([-R(1,9),R(1,9),-R(10,90),R(10,90),-R(100,300),R(100,300)]);b=Math.max(100,Math.min(999,b));if(b===a)b=a+1;
