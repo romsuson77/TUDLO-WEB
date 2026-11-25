@@ -3331,7 +3331,18 @@ gradePack(6,[
 
 
 // offline support on tudlo.madyaw.com (and inside the Android app)
-try{if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{})}catch(e){}
+try{if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{try{r.update()}catch(e){}}).catch(()=>{})}catch(e){}
+// ---- auto-update: when a newer index.html is on the server, reload to it (on open and whenever the app comes back to the front)
+const TUDLO_VER=(document.body.innerHTML.match(/TUDLO v(\d+(?:\.\d+)*)/)||[])[1]||'0';
+function verNum(v){return String(v).split('.').map(Number).reduce((a,n,i)=>a+n*Math.pow(1000,2-i),0)}
+async function checkUpdate(){if(location.protocol!=='https:')return;try{
+  const r=await fetch('./index.html?u='+Date.now(),{cache:'no-store'});if(!r.ok)return;const t=await r.text();const m=t.match(/TUDLO v(\d+(?:\.\d+)*)/);if(!m)return;
+  if(verNum(m[1])>verNum(TUDLO_VER)){const k='tudlo_upd_'+m[1];let n=0;try{n=+sessionStorage.getItem(k)||0;sessionStorage.setItem(k,n+1)}catch(e){}if(n>=2)return;
+    try{toast('✨ Updating TUDLO to v'+m[1]+'…')}catch(e){}
+    try{const ks=await caches.keys();await Promise.all(ks.map(x=>caches.delete(x)))}catch(e){}
+    try{const regs=await navigator.serviceWorker.getRegistrations();for(const g of regs)await g.update()}catch(e){}
+    setTimeout(()=>location.replace(location.pathname+'?v='+m[1]),900)}}catch(e){}}
+setTimeout(checkUpdate,2500);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate()});
 
 // ---------- boot ----------
 load();
