@@ -1039,7 +1039,7 @@ function scrTitle(){P=null;const profs=Object.entries(STORE.profiles);
    <div class="crests">${CRESTS.map(c=>`<button class="${c===newCrest?'on':''}" onclick="newCrest='${c}';document.querySelectorAll('.crests button').forEach(b=>b.classList.toggle('on',b.textContent==='${c}'))">${c}</button>`).join('')}</div>
    <div class="center" style="margin-top:14px"><button class="btn" onclick="createProfile()">🏰 Found my Kingdom</button></div>
    ${MEMONLY?'<p class="muted center">Note: this browser is not allowing saving, so progress lasts only while this page is open.</p>':''}
-  </div><p class="center acr">Kinder to Grade 6 · all MATATAG subjects · Grade 6 & First Year High School Pre-Algebra</p><p class="center" style="color:#9fb0d8;font-size:12px;margin:2px 0 0">TUDLO v6.7 · 25 Nov 2026 · 🌉 Sound Bridge 2 · 🎤 Say it!</p>`)}
+  </div><p class="center acr">Kinder to Grade 6 · all MATATAG subjects · Grade 6 & First Year High School Pre-Algebra</p><p class="center" style="color:#9fb0d8;font-size:12px;margin:2px 0 0">TUDLO v6.7.1 · 25 Nov 2026 · 🌉 Sound Bridge 2 · 🎤 Voice fix</p>`)}
 function createProfile(){const n=($('#pname').value||'').trim();if(!n){$('#pname').focus();toast('✍️ Type your name first, Commander!');return}
   const id='p'+Date.now();STORE.profiles[id]=newProfile(n,newCrest);STORE.current=id;P=STORE.profiles[id];if(newMode!=='g6'){P.young=true;P.yk.grade=newMode==='k1'?1:newGrade;P.intro=true;P.assess={done:true,skipped:true,res:{}};save();scrYoung();return}save();scrKingdom()}
 function pickProfile(id){STORE.current=id;P=STORE.profiles[id];migrate();save();P.young?scrYoung():scrKingdom()}
@@ -1259,7 +1259,7 @@ function onAnswer(r,val,A){const cur=B.cur,q=cur.q,dt=(Date.now()-cur.t0)/1000;
     save();B.pos++;nextQ()});
 }
 function banner(t){const a=$('#arena');if(!a)return;const d=document.createElement('div');d.className='streakban';d.textContent=t;a.appendChild(d);setTimeout(()=>d.remove(),1900)}
-function quitBattle(){modal(`<div class="center"><div style="font-size:54px">🏳️</div><h2>Retreat?</h2><p>Your progress is saved after every answer. You can continue this battle later.</p><button class="btn" onclick="closeModal()">⚔️ Keep fighting</button> <button class="btn sec" onclick="B=null;go('${B.cfg.mode==='terr'?'map':B.cfg.mode==='raid'?'kingdom':B.cfg.mode==='review'?'map':B.cfg.mode==='practice'?'plan':'camp'}')">Retreat</button></div>`)}
+function quitBattle(){if(!B||!B.cfg)return;modal(`<div class="center"><div style="font-size:54px">🏳️</div><h2>Retreat?</h2><p>Your progress is saved after every answer. You can continue this battle later.</p><button class="btn" onclick="closeModal()">⚔️ Keep fighting</button> <button class="btn sec" onclick="B=null;go('${B.cfg.mode==='terr'?'map':B.cfg.mode==='raid'?'kingdom':B.cfg.mode==='review'?'map':B.cfg.mode==='practice'?'plan':'camp'}')">Retreat</button></div>`)}
 function endBattle(){const res=B.cfg.onEnd(B);const e=B.earned;const won=res&&res.done;
   fx('dead');SFX.win();
   const earnedTxt=Object.entries(e).filter(([k,v])=>v>0).map(([k,v])=>`${{gold:'🪙',food:'🌾',wood:'🪵',stone:'🪨',crystal:'💎',xp:'⭐ XP',soldiers:'🗡️',archers:'🏹',swordsmen:'⚔️',cavalry:'🐎',engineers:'🛠️'}[k]||k} +${Math.round(v)}`).join(' &nbsp; ');
@@ -1551,7 +1551,7 @@ function filPrep(t){const raw=String(t).trim();const letters=raw.replace(/[^a-z�
 const TTSW={};let TTSN=0;window.__ttsDone=id=>{const f=TTSW[id];if(f)f()};
 function say(t,rate,onb,lang){if(lang==null)lang=(YL&&YL.L&&YL.L.lang)||(typeof BT!=='undefined'&&BT&&BT.L&&BT.L.lang)||'en';if(lang==='fil'&&t){const pr=filPrep(t);t=pr[0];lang=pr[1];onb=lang==='fil'?onb:null}if(window.AndroidTTS){if(!P||P.settings.voice===false||!t)return Promise.resolve();return new Promise(res=>{const id='u'+(++TTSN);let done=false;const fin=()=>{if(!done){done=true;delete TTSW[id];res()}};TTSW[id]=fin;try{AndroidTTS.speak(String(t),lang==='fil'?'fil':'en',rate||.85,id)}catch(e){fin()}setTimeout(fin,1500+String(t).length*110/(rate||.85))})}return new Promise(res=>{if(!P||P.settings.voice===false||!window.speechSynthesis||!t){res();return}
   try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);if(lang==='fil'){if(VOICE.fil)u.voice=VOICE.fil;u.lang=VOICE.fil?VOICE.fil.lang:'fil-PH'}else{if(VOICE.v)u.voice=VOICE.v;u.lang=VOICE.v?VOICE.v.lang:'en-US'}u.rate=rate||.85;u.pitch=1.1;
-    let done=false;const fin=()=>{if(!done){done=true;res()}};u.onend=fin;u.onerror=fin;if(onb)u.onboundary=onb;setTimeout(fin,900+t.length*120/(rate||.85));speechSynthesis.speak(u)}catch(e){res()}})}
+    let done=false;const fin=()=>{if(!done){done=true;res()}};u.onend=fin;u.onerror=fin;if(onb)u.onboundary=onb;setTimeout(fin,900+String(t).length*120/(rate||.85));speechSynthesis.speak(u)}catch(e){res()}})}
 function yVoice(){P.settings.voice=P.settings.voice===false;save();toast(P.settings.voice?'🔊 Voice on':'🔇 Voice off');if(YL||(typeof BT!=='undefined'&&BT))return;scrYoung()}
 
 // --- sounds the device voice can say (close to classroom phonics sounds) ---
@@ -2024,8 +2024,8 @@ const filNums=FNUM.map((n,k)=>{const e=pick(OBJ)[0];const o=[k-1,k+1,k+2].filter
 const YFIL=[
  {id:'f1',land:'pantig',lang:'fil',e:'🌽',name:'Pantig: Ma at Sa',sub:'ma-ta · ma-is · sa-ging',words:'ma|ta:👁️ ma|is:🌽 ma|ni:🥜 ma|nok:🐔 sa|ging:🍌 si|li:🌶️ su|so:🐌 sa|pa|tos:👞'},
  {id:'f2',land:'pantig',lang:'fil',e:'⚽',name:'Pantig: Ba at Ta',sub:'ba-ta · bo-la · ta-sa',words:'ba|ta:🧒 bo|la:⚽ ba|ka:🐄 ba|hay:🏠 bi|be:🦆 ta|sa:☕ tu|big:💧 ta|long:🍆'},
- {id:'f3',land:'pantig',lang:'fil',e:'✏️',name:'Pantig: Ka, La at Pa',sub:'ka-bay · la-pis · pa-yong',words:'ka|bay:🐴 ka|hon:📦 la|pis:✏️ li|bro:📕 pu|so:❤️ pin|ya:🍍 pa|a:🦶 pa|yong:☂️'},
- {id:'f4',land:'pantig',lang:'fil',e:'🐃',name:'Mga Hayop',sub:'a-so · pu-sa · ka-la-baw',words:'a|so:🐶 pu|sa:🐱 i|bon:🐦 is|da:🐟 pa|go:🐢 ung|goy:🐒 ka|la|baw:🐃 ba|boy:🐷'},
+ {id:'f3',land:'pantig',lang:'fil',e:'✏️',name:'Pantig: Ka, La at Pa',sub:'ka-ba-yo · la-pis · pa-yong',words:'ka|ba|yo:🐴 ka|hon:📦 la|pis:✏️ li|bro:📕 pu|so:❤️ pin|ya:🍍 pa|a:🦶 pa|yong:☂️'},
+ {id:'f4',land:'pantig',lang:'fil',e:'🐃',name:'Mga Hayop',sub:'a-so · pu-sa · ka-la-baw',words:'a|so:🐶 pu|sa:🐱 i|bon:🐦 is|da:🐟 pa|gong:🐢 ung|goy:🐒 ka|la|baw:🐃 ba|boy:🐷'},
  {id:'f5',land:'pantig',lang:'fil',e:'👺',name:'Labanan ng Salita',sub:'Basahin at buuin · 10 salita',boss:true,pool:['f1','f2','f3','f4'],n:10},
  {id:'f6',land:'salita',lang:'fil',e:'🎨',name:'Mga Kulay',sub:'pula · asul · dilaw',bank:filColors,n:10},
  {id:'f7',land:'salita',lang:'fil',e:'🔟',name:'Mga Bilang 1–10',sub:'isa · dalawa · tatlo',bank:filNums,n:10},
@@ -3331,6 +3331,284 @@ gradePack(6,[
 
 // offline support on tudlo.madyaw.com (and inside the Android app)
 try{if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{})}catch(e){}
+
+// ================= 🔧 TUDLO VOICE & PRONUNCIATION FIX (v6.7.1) =================
+// Every section is guarded: if a function it patches is missing, that section is skipped
+// (a warning goes to the console) instead of breaking the whole game.
+(function applyVoiceAndBugFixes() {
+  const step = (label, fn) => { try { fn(); } catch (e) { console.warn('[TUDLO voice fix] skipped:', label, e); } };
+
+  // ---------- 3. Warn when opened from file:// (Chrome blocks the mic there) ----------
+  // The Android APK has its own AndroidSTT bridge, so it is not warned.
+  step('file:// warning', () => {
+    if (location.protocol === 'file:' && !window.AndroidSTT && (typeof toast !== 'undefined')) {
+      setTimeout(() => toast('⚠️ The microphone needs https:// or localhost. Open tudlo.madyaw.com instead.'), 1200);
+    }
+  });
+
+  // ---------- 4. Recognizer spellings ----------
+  // ONLY true homophones / letter names / spelled sounds. Words with a DIFFERENT VOWEL
+  // (pen≠pan≠pin, cat≠cut, bat≠bet, pig≠peg, it≠at) are NOT accepted: telling those vowels
+  // apart is exactly what Sound Bridge teaches.
+  step('homophones', () => {
+    if (typeof SAMEAS === 'undefined' || !SAMEAS) return;
+    const EXTRA_SAME = {
+      // vowel-first (en-US)
+      at: ['at', 'att'],          an: ['an', 'ann', 'anne'],   am: ['am', 'um'],
+      ad: ['ad', 'add'],          ap: ['ap', 'app'],           as: ['as', 'az'],
+      ed: ['ed', 'edd'],          en: ['en', 'n'],             et: ['et'],
+      eg: ['eg', 'egg'],          em: ['em', 'm'],
+      it: ['it'],                 in: ['in', 'inn'],           ip: ['ip'],
+      ig: ['ig'],                 id: ['id'],                  is: ['is', 'iz'],
+      on: ['on'],                 ot: ['ot', 'ott'],           op: ['op'],
+      og: ['og'],                 ox: ['ox', 'ocks'],
+      up: ['up'],                 un: ['un'],                  ug: ['ug'],
+      ut: ['ut'],                 ud: ['ud'],                  us: ['us'],
+      // vowel-last (fil-PH / en-US fallback). Filipino "e" ≈ "eh/ay", "i" ≈ "ee"
+      ba: ['ba', 'bah', 'baa', 'bar'],  be: ['be', 'beh', 'bay'],  bi: ['bi', 'bee', 'b'],
+      bo: ['bo', 'boh', 'bow'],         bu: ['bu', 'boo'],
+      ma: ['ma', 'mah', 'maa'],         me: ['me', 'meh', 'may'],  mi: ['mi', 'mee'],
+      mo: ['mo', 'moh', 'mow'],         mu: ['mu', 'moo'],
+      sa: ['sa', 'sah'],                se: ['se', 'seh', 'say'],  si: ['si', 'see', 'sea', 'c'],
+      so: ['so', 'soh', 'sew'],         su: ['su', 'soo', 'sue'],
+      ta: ['ta', 'tah'],                te: ['te', 'teh', 'tay'],  ti: ['ti', 'tee', 'tea', 't'],
+      to: ['to', 'toh', 'toe', 'tow'],  tu: ['tu', 'too', 'two'],
+      la: ['la', 'lah'],                le: ['le', 'leh', 'lay'],  li: ['li', 'lee'],
+      lo: ['lo', 'loh', 'low'],         lu: ['lu', 'loo'],
+      pa: ['pa', 'pah'],                pe: ['pe', 'peh', 'pay'],  pi: ['pi', 'pee', 'pea', 'p'],
+      po: ['po', 'poh'],                pu: ['pu', 'poo'],
+      ka: ['ka', 'kah', 'ca'],          ke: ['ke', 'keh', 'kay', 'k'], ki: ['ki', 'key', 'kee'],
+      ko: ['ko', 'koh', 'co'],          ku: ['ku', 'koo', 'coo'],
+      // 3-letter words: same-sound spellings only
+      cat: ['cat', 'kat'],  sun: ['sun', 'son'],  bin: ['bin'],  pup: ['pup'],
+      bun: ['bun', 'bunn'], net: ['net', 'nett'], rug: ['rug'],  mop: ['mop']
+    };
+    for (const k in EXTRA_SAME) {
+      const prev = Array.isArray(SAMEAS[k]) ? SAMEAS[k] : [];
+      SAMEAS[k] = Array.from(new Set([...prev, ...EXTRA_SAME[k]]));
+    }
+    // Remove cross-collisions an older list may contain (one spelling counted for two sounds).
+    // "bee" is bi, not be; "pa" is not ba; "and" is not an/en.
+    const STRIP = { be: ['bee', 'b'], ba: ['pa'], an: ['and'], en: ['and', 'in'], in: ['en'], it: ['at', 'eat'], et: ['at', 'eat'] };
+    for (const k in STRIP) if (Array.isArray(SAMEAS[k])) SAMEAS[k] = SAMEAS[k].filter(x => !STRIP[k].includes(x));
+  });
+
+  // ---------- 5. "@" → "at", "&" → "and" before symbols are stripped ----------
+  step('micNorm symbols', () => {
+    if (!(typeof micNorm !== 'undefined')) return;
+    const _origMicNorm = micNorm;
+    micNorm = function (s) {
+      return _origMicNorm(String(s == null ? '' : s).replace(/@/g, ' at ').replace(/&/g, ' and '));
+    };
+  });
+
+  // ---------- 6. listen(): TTS cooldown, interim results, error normalising, no timer leaks ----------
+  step('listen', () => {
+    if (!(typeof listen !== 'undefined') || typeof STT === 'undefined') return;
+    let sttTimer = null, startTimer = null, callNo = 0;
+    const ready = () => { try { window.__sttReady && window.__sttReady(); } catch (e) {} };
+
+    listen = function (lang) {
+      try { (typeof sayStop !== 'undefined') && sayStop(); } catch (e) {}
+      try { (typeof micStop !== 'undefined') && micStop(); } catch (e) {}
+      clearTimeout(sttTimer); clearTimeout(startTimer);
+      const my = ++callNo;                    // a newer listen() cancels this one before it starts
+      STT.busy = true;
+      const loc = lang === 'fil' ? 'fil-PH' : 'en-US';
+      const done = v => { if (my === callNo) { STT.busy = false; clearTimeout(sttTimer); } return v; };
+
+      return new Promise(resolve => {
+        // 220 ms lets phone audio switch from speaker (TTS) to microphone cleanly
+        startTimer = setTimeout(() => {
+          if (my !== callNo) return resolve({ err: 'aborted' });
+
+          // --- Android APK: native SpeechRecognizer bridge ---
+          if (window.AndroidSTT) {
+            const id = 's' + (++STT.n);
+            STT.cb[id] = v => resolve(done(v));
+            try { AndroidSTT.listen(loc, id); }
+            catch (e) { delete STT.cb[id]; return resolve(done({ err: 'bridge' })); }
+            sttTimer = setTimeout(() => {
+              if (STT.cb[id]) {
+                try { AndroidSTT.cancel(); } catch (e) {}
+                if (window.__sttError) window.__sttError(id, 'timeout');
+                else { const cb = STT.cb[id]; delete STT.cb[id]; cb({ err: 'no-speech' }); }
+              }
+            }, 14000);
+            return;
+          }
+
+          // --- Browser: Web Speech API ---
+          const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+          if (!SR) return resolve(done({ err: 'none' }));
+
+          let fin = false, finalAlts = [], interimAlts = [], settle = null, r = null;
+          const end = v => {
+            if (fin) return;
+            fin = true;
+            clearTimeout(settle);
+            if (STT.web === r) STT.web = null;
+            resolve(done(v));
+          };
+          const all = () => [...new Set([...finalAlts, ...interimAlts])];
+
+          try {
+            r = new SR();
+            STT.web = r;
+            r.lang = loc;
+            r.maxAlternatives = 5;
+            r.interimResults = true;          // short kid words often only show up as interim
+            r.continuous = false;
+
+            r.onstart = ready;
+            r.onresult = e => {
+              for (let i = e.resultIndex; i < e.results.length; i++) {
+                const res = e.results[i];
+                const t = Array.from(res).map(a => (a.transcript || '').trim()).filter(Boolean);
+                if (res.isFinal) finalAlts.push(...t); else if (t.length) interimAlts = t;
+              }
+              if (finalAlts.length) return end({ alts: all() });
+              if (interimAlts.length) {        // engine heard something but is slow to finalise
+                clearTimeout(settle);
+                settle = setTimeout(() => { try { r.stop(); } catch (er) {} end({ alts: all() }); }, 900);
+              }
+            };
+            r.onerror = e => {
+              const code = (e && e.error) || 'err';
+              if ((code === 'no-speech' || code === 'aborted') && (finalAlts.length || interimAlts.length)) return end({ alts: all() });
+              if (code === 'language-not-supported') return end({ err: 'nolang' });  // lets callers fall back to en-US
+              end({ err: code });
+            };
+            r.onend = () => end(finalAlts.length || interimAlts.length ? { alts: all() } : { err: 'no-speech' });
+
+            r.start();
+            sttTimer = setTimeout(() => { try { r.stop(); } catch (e) {} }, 8500);
+          } catch (e) {
+            end({ err: 'start' });
+          }
+        }, 220);
+      });
+    };
+  });
+
+  // ---------- 7. brScore: accept a homophone only when it is the WHOLE answer ----------
+  // (Gemini's version accepted any word inside a longer phrase, e.g. "the hat is red" for "at".)
+  step('brScore', () => {
+    if (!(typeof brScore !== 'undefined') || !(typeof micNorm !== 'undefined')) return;
+    const _origBrScore = brScore;
+    brScore = function (t, alts) {
+      const base = _origBrScore(t, alts);
+      if (base && base.score === 2) return base;
+      const target = micNorm(t).replace(/ /g, '');
+      const accepted = (typeof SAMEAS !== 'undefined' && Array.isArray(SAMEAS[target])) ? SAMEAS[target] : [];
+      for (const a of (alts || [])) {
+        const n = micNorm(a);
+        const toks = n.split(' ').filter(Boolean);
+        if (!toks.length || toks.length > 2) continue;      // ignore long phrases / chatter
+        // allow "at" or "at at" (kids repeat), but never "c a t" (letters must be blended)
+        const w = toks[0];
+        if (toks.length === 2 && toks[1] !== w) continue;
+        if (w === target || accepted.includes(w)) return { score: 2, heard: n, why: '' };
+      }
+      return base;
+    };
+  });
+
+  // ---------- 8. Never delete the 🎤 button when the browser blocks auto-listening ----------
+  const BLOCKED = ['not-allowed', 'start', 'service-not-allowed'];
+
+  step('micGo', () => {
+    if (!(typeof micGo !== 'undefined') || !(typeof micWord !== 'undefined')) return;
+    micGo = async function (kind, btn) {
+      if (!btn || btn.dataset.busy || typeof YL === 'undefined' || !YL) return;
+      const it = YL.items[YL.i];
+      const tok = YL.tok;
+      const lang = YL.L && YL.L.lang === 'fil' ? 'fil' : 'en';
+      const target = kind === 'page' ? it.p[1] : it.w.w;
+      btn.dataset.busy = 1;
+      btn.classList.add('listen');
+      btn.classList.remove('pulse');
+      btn.innerHTML = `👂 ${T('Listening… say it now!', 'Nakikinig… sabihin na!')} <span class="mbars"><i></i><i></i><i></i></span>`;
+      P.yk.mic = P.yk.mic || { n: 0, ok: 0 };
+      P.yk.mic.n++;
+
+      let r = await listen(lang);
+      if (r.err === 'nolang' && lang === 'fil') r = await listen('en');
+      if (!YL || YL.tok !== tok || !btn.isConnected) return;
+      btn.classList.remove('listen', 'hot');
+      delete btn.dataset.busy;
+
+      if (r.err) {
+        YL.cur.mt = (YL.cur.mt || 0) + 1;
+        if (BLOCKED.includes(r.err)) {
+          btn.classList.add('pulse');
+          btn.innerHTML = '🎤 ' + T('Tap here & say it!', 'Pindutin ito at sabihin!');
+          micFb(T('👆 Tap the red 🎤 button, allow the microphone if asked, and speak!', '👆 Pindutin ang pulang 🎤, payagan ang mikropono, at magsalita!'), 'warn');
+          if (YL.cur.mt >= 2 && kind === 'word') micReveal();
+          return;
+        }
+        const m = micErrMsg(r.err);
+        if (kind === 'word' && (m || YL.cur.mt >= 3)) micReveal();
+        if (m) { toast(m); btn.classList.add('pulse'); btn.innerHTML = '🎤 ' + T('Tap to try again', 'Subukan muli'); return; }
+        btn.classList.add('pulse');
+        btn.innerHTML = '🎤 ' + T("I didn't hear you — tap & say it!", 'Hindi kita narinig — pindutin at ulitin!');
+        say(T('Tap the microphone and say it loud!', 'Pindutin ang mikropono at lakasan mo!'), .9);
+        return;
+      }
+      if (kind === 'page') return micPage(btn, target, r.alts, lang);
+      return micWord(kind, btn, target, r.alts, lang);
+    };
+  });
+
+  step('brListen', () => {
+    if (!(typeof brListen !== 'undefined') || !(typeof brRight !== 'undefined') || !(typeof brWrong !== 'undefined')) return;
+    brListen = async function (btn) {
+      if (typeof YL === 'undefined' || !YL || !btn || btn.dataset.busy) return;
+      const it = YL.items[YL.i], tok = YL.tok, k = it.kind;
+      btn.dataset.busy = 1;
+      btn.classList.add('listen');
+      btn.classList.remove('pulse');
+      btn.innerHTML = `👂 Listening… say it now! <span class="mbars"><i></i><i></i><i></i></span>`;
+      P.yk.mic = P.yk.mic || { n: 0, ok: 0 };
+      P.yk.mic.n++;
+
+      let r = await listen(it.lang);
+      if (r.err === 'nolang' && it.lang === 'fil') r = await listen('en');
+      if (!YL || YL.tok !== tok || !btn.isConnected) return;
+      delete btn.dataset.busy;
+      btn.classList.remove('listen');
+
+      if (r.err) {
+        if (BLOCKED.includes(r.err)) {
+          it.blk = (it.blk || 0) + 1;
+          if (it.blk >= 3) { brNoMic(); return; }  // mic truly refused → read-along instead of a dead end
+          btn.innerHTML = '🎤 Tap here & say it!';
+          btn.classList.add('pulse');
+          micFb('👆 Tap the red 🎤 button (and press Allow if your browser asks for the mic)!', 'warn');
+          return;
+        }
+        const m = micErrMsg(r.err);
+        if (m) { toast(m); brNoMic(); return; }   // device really can't listen → read-along mode
+        it.quiet = (it.quiet || 0) + 1;
+        btn.innerHTML = '🎤 Tap me and say it!';
+        btn.classList.add('pulse');
+        micFb('🗣️ Speak right after the red button turns on!', 'warn');
+        say('Tap the red button and say it loud!', .9);
+        return;
+      }
+      const s = k === 'sent' ? brSentScore(it.t, r.alts, it.lang) : brScore(it.t, r.alts);
+      if (k === 'sent') (s.hit || []).forEach((h, j) => {
+        const el = $('#brw' + j);
+        if (el) { el.classList.remove('miss', 'said'); el.classList.add(h ? 'said' : 'miss'); }
+      });
+      if (s.score === 2) { P.yk.mic.ok++; brRight(); return; }
+      brWrong(s);
+    };
+  });
+
+  console.info('[TUDLO] voice fix v6.7.1 loaded');
+})();
+// ================= end of voice fix =================
 
 // ---------- boot ----------
 load();
