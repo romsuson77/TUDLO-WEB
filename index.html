@@ -1039,7 +1039,7 @@ function scrTitle(){P=null;const profs=Object.entries(STORE.profiles);
    <div class="crests">${CRESTS.map(c=>`<button class="${c===newCrest?'on':''}" onclick="newCrest='${c}';document.querySelectorAll('.crests button').forEach(b=>b.classList.toggle('on',b.textContent==='${c}'))">${c}</button>`).join('')}</div>
    <div class="center" style="margin-top:14px"><button class="btn" onclick="createProfile()">🏰 Found my Kingdom</button></div>
    ${MEMONLY?'<p class="muted center">Note: this browser is not allowing saving, so progress lasts only while this page is open.</p>':''}
-  </div><p class="center acr">Kinder to Grade 6 · all MATATAG subjects · Grade 6 & First Year High School Pre-Algebra</p><p class="center" style="color:#9fb0d8;font-size:12px;margin:2px 0 0">TUDLO v6.9 · 25 Nov 2026 · 🎤 Auto-listen · 🎤 Say it!</p>`)}
+  </div><p class="center acr">Kinder to Grade 6 · all MATATAG subjects · Grade 6 & First Year High School Pre-Algebra</p><p class="center" style="color:#9fb0d8;font-size:12px;margin:2px 0 0">TUDLO v6.11 · 25 Nov 2026 · ✏️ Spell & Read · 🎤 Say it!</p>`)}
 function createProfile(){const n=($('#pname').value||'').trim();if(!n){$('#pname').focus();toast('✍️ Type your name first, Commander!');return}
   const id='p'+Date.now();STORE.profiles[id]=newProfile(n,newCrest);STORE.current=id;P=STORE.profiles[id];if(newMode!=='g6'){P.young=true;P.yk.grade=newMode==='k1'?1:newGrade;P.intro=true;P.assess={done:true,skipped:true,res:{}};save();scrYoung();return}save();scrKingdom()}
 function pickProfile(id){STORE.current=id;P=STORE.profiles[id];migrate();save();P.young?scrYoung():scrKingdom()}
@@ -1259,7 +1259,7 @@ function onAnswer(r,val,A){const cur=B.cur,q=cur.q,dt=(Date.now()-cur.t0)/1000;
     save();B.pos++;nextQ()});
 }
 function banner(t){const a=$('#arena');if(!a)return;const d=document.createElement('div');d.className='streakban';d.textContent=t;a.appendChild(d);setTimeout(()=>d.remove(),1900)}
-function quitBattle(){modal(`<div class="center"><div style="font-size:54px">🏳️</div><h2>Retreat?</h2><p>Your progress is saved after every answer. You can continue this battle later.</p><button class="btn" onclick="closeModal()">⚔️ Keep fighting</button> <button class="btn sec" onclick="B=null;go('${B.cfg.mode==='terr'?'map':B.cfg.mode==='raid'?'kingdom':B.cfg.mode==='review'?'map':B.cfg.mode==='practice'?'plan':'camp'}')">Retreat</button></div>`)}
+function quitBattle(){if(!B||!B.cfg)return;modal(`<div class="center"><div style="font-size:54px">🏳️</div><h2>Retreat?</h2><p>Your progress is saved after every answer. You can continue this battle later.</p><button class="btn" onclick="closeModal()">⚔️ Keep fighting</button> <button class="btn sec" onclick="B=null;go('${B.cfg.mode==='terr'?'map':B.cfg.mode==='raid'?'kingdom':B.cfg.mode==='review'?'map':B.cfg.mode==='practice'?'plan':'camp'}')">Retreat</button></div>`)}
 function endBattle(){const res=B.cfg.onEnd(B);const e=B.earned;const won=res&&res.done;
   fx('dead');SFX.win();
   const earnedTxt=Object.entries(e).filter(([k,v])=>v>0).map(([k,v])=>`${{gold:'🪙',food:'🌾',wood:'🪵',stone:'🪨',crystal:'💎',xp:'⭐ XP',soldiers:'🗡️',archers:'🏹',swordsmen:'⚔️',cavalry:'🐎',engineers:'🛠️'}[k]||k} +${Math.round(v)}`).join(' &nbsp; ');
@@ -1551,7 +1551,7 @@ function filPrep(t){const raw=String(t).trim();const letters=raw.replace(/[^a-z�
 const TTSW={};let TTSN=0;window.__ttsDone=id=>{const f=TTSW[id];if(f)f()};
 function say(t,rate,onb,lang){if(lang==null)lang=(YL&&YL.L&&YL.L.lang)||(typeof BT!=='undefined'&&BT&&BT.L&&BT.L.lang)||'en';if(lang==='fil'&&t){const pr=filPrep(t);t=pr[0];lang=pr[1];onb=lang==='fil'?onb:null}if(window.AndroidTTS){if(!P||P.settings.voice===false||!t)return Promise.resolve();return new Promise(res=>{const id='u'+(++TTSN);let done=false;const fin=()=>{if(!done){done=true;delete TTSW[id];res()}};TTSW[id]=fin;try{AndroidTTS.speak(String(t),lang==='fil'?'fil':'en',rate||.85,id)}catch(e){fin()}setTimeout(fin,1500+String(t).length*110/(rate||.85))})}return new Promise(res=>{if(!P||P.settings.voice===false||!window.speechSynthesis||!t){res();return}
   try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);if(lang==='fil'){if(VOICE.fil)u.voice=VOICE.fil;u.lang=VOICE.fil?VOICE.fil.lang:'fil-PH'}else{if(VOICE.v)u.voice=VOICE.v;u.lang=VOICE.v?VOICE.v.lang:'en-US'}u.rate=rate||.85;u.pitch=1.1;
-    let done=false;const fin=()=>{if(!done){done=true;res()}};u.onend=fin;u.onerror=fin;if(onb)u.onboundary=onb;setTimeout(fin,900+t.length*120/(rate||.85));speechSynthesis.speak(u)}catch(e){res()}})}
+    let done=false;const fin=()=>{if(!done){done=true;res()}};u.onend=fin;u.onerror=fin;if(onb)u.onboundary=onb;setTimeout(fin,900+String(t).length*120/(rate||.85));speechSynthesis.speak(u)}catch(e){res()}})}
 function yVoice(){P.settings.voice=P.settings.voice===false;save();toast(P.settings.voice?'🔊 Voice on':'🔇 Voice off');if(YL||(typeof BT!=='undefined'&&BT))return;scrYoung()}
 
 // --- sounds the device voice can say (close to classroom phonics sounds) ---
@@ -2024,8 +2024,8 @@ const filNums=FNUM.map((n,k)=>{const e=pick(OBJ)[0];const o=[k-1,k+1,k+2].filter
 const YFIL=[
  {id:'f1',land:'pantig',lang:'fil',e:'🌽',name:'Pantig: Ma at Sa',sub:'ma-ta · ma-is · sa-ging',words:'ma|ta:👁️ ma|is:🌽 ma|ni:🥜 ma|nok:🐔 sa|ging:🍌 si|li:🌶️ su|so:🐌 sa|pa|tos:👞'},
  {id:'f2',land:'pantig',lang:'fil',e:'⚽',name:'Pantig: Ba at Ta',sub:'ba-ta · bo-la · ta-sa',words:'ba|ta:🧒 bo|la:⚽ ba|ka:🐄 ba|hay:🏠 bi|be:🦆 ta|sa:☕ tu|big:💧 ta|long:🍆'},
- {id:'f3',land:'pantig',lang:'fil',e:'✏️',name:'Pantig: Ka, La at Pa',sub:'ka-bay · la-pis · pa-yong',words:'ka|bay:🐴 ka|hon:📦 la|pis:✏️ li|bro:📕 pu|so:❤️ pin|ya:🍍 pa|a:🦶 pa|yong:☂️'},
- {id:'f4',land:'pantig',lang:'fil',e:'🐃',name:'Mga Hayop',sub:'a-so · pu-sa · ka-la-baw',words:'a|so:🐶 pu|sa:🐱 i|bon:🐦 is|da:🐟 pa|go:🐢 ung|goy:🐒 ka|la|baw:🐃 ba|boy:🐷'},
+ {id:'f3',land:'pantig',lang:'fil',e:'✏️',name:'Pantig: Ka, La at Pa',sub:'ka-ba-yo · la-pis · pa-yong',words:'ka|ba|yo:🐴 ka|hon:📦 la|pis:✏️ li|bro:📕 pu|so:❤️ pin|ya:🍍 pa|a:🦶 pa|yong:☂️'},
+ {id:'f4',land:'pantig',lang:'fil',e:'🐃',name:'Mga Hayop',sub:'a-so · pu-sa · ka-la-baw',words:'a|so:🐶 pu|sa:🐱 i|bon:🐦 is|da:🐟 pa|gong:🐢 ung|goy:🐒 ka|la|baw:🐃 ba|boy:🐷'},
  {id:'f5',land:'pantig',lang:'fil',e:'👺',name:'Labanan ng Salita',sub:'Basahin at buuin · 10 salita',boss:true,pool:['f1','f2','f3','f4'],n:10},
  {id:'f6',land:'salita',lang:'fil',e:'🎨',name:'Mga Kulay',sub:'pula · asul · dilaw',bank:filColors,n:10},
  {id:'f7',land:'salita',lang:'fil',e:'🔟',name:'Mga Bilang 1–10',sub:'isa · dalawa · tatlo',bank:filNums,n:10},
@@ -2333,7 +2333,7 @@ function srResult(s,ok){if(!s)return;P.yk.sr=P.yk.sr||{};const k=srKey(s),e=P.yk
 const srDue=()=>Object.values(P.yk.sr||{}).filter(e=>e.due<=todayStr()&&LVL(e.lv));
 const QUEST_L={id:'quest',quest:true,e:'☀️',name:"Today's Quest",sub:'12 mixed questions'};
 function questQ(s){const L=LVL(s.lv);if(s.w&&(L.words||L.pool))return battleQ(L,s.w);if(s.ix!=null&&L.bank&&L.bank[s.ix])return bankQ(L.bank[s.ix],L);if(L.words||L.pool||L.story)return battleQ(L);return qFromLevel(L,R(2,8))}
-function startQuest(){closeModal();const due=srDue().sort((a,b)=>a.due<b.due?-1:1).slice(0,6);const items=due.map(e=>({src:e}));
+function startQuest(){closeModal();const due=srDue().filter(e=>!yLockedOut(e.lv)).sort((a,b)=>a.due<b.due?-1:1).slice(0,6);const items=due.map(e=>({src:e}));
   const quizable=L=>!L.special&&!L.trace;const done=ALLV().filter(L=>quizable(L)&&!L.g2&&P.yk.st[L.id]&&P.yk.st[L.id].done);
   const open=ROADS.filter(r=>r.k!=='g2').flatMap(r=>r.list.filter((L,i)=>quizable(L)&&yOpen(r.list,i)&&!L.boss));const pool=yFocusPool(done.length>=4?done:done.concat(open),done,open);
   const roadsUsed={};while(items.length<12){let L=pick(pool);const rk=LVM[L.id].road.k;if((roadsUsed[rk]||0)>=4)L=pick(pool);roadsUsed[rk]=(roadsUsed[rk]||0)+1;items.push({src:{lv:L.id}})}
@@ -2533,7 +2533,7 @@ function gradePack(g,roads){roads.forEach(r=>{r.lands=r.lands.map(l=>Array.isArr
 function loadGrade(g){if(GRADES[g])return Promise.resolve();if(GLOAD[g])return GLOAD[g];GLOAD[g]=new Promise((res,rej)=>{const s=document.createElement('script');s.src=`grade${g}.js`;s.onload=()=>GRADES[g]?res():rej(new Error('pack'));s.onerror=()=>{delete GLOAD[g];rej(new Error('load'))};document.head.appendChild(s)});return GLOAD[g]}
 function setGrade(g){const G=GRADES[g]||GRADES[1];ROADS.length=0;G.roads.forEach(r=>ROADS.push(r));if(!ROADS.some(r=>r.k===P.yk.tab))P.yk.tab=ROADS[0].k}
 function pickGrade(g){toast('📚 Opening '+GRADE_NAMES[g]+'…');loadGrade(g).then(()=>{P.yk.grade=g;setGrade(g);save();scrYoung()}).catch(()=>{toast('⚠️ Could not open that grade pack. Check the internet and try again.')})}
-const gradeBar=()=>`<div class="gbar">${[1,2,3,4,5,6].map(g=>`<button class="${(P.yk.grade||1)===g?'on':''}" onclick="pickGrade(${g})">${g===1?'K–1':'G'+g}</button>`).join('')}</div>`;
+const gradeBar=()=>yLocked()?`<div class="gbar"><button class="on">K–1</button><span style="color:#cfd8ff;font-size:13px;align-self:center">🔒 locked by a grown-up</span></div>`:`<div class="gbar">${[1,2,3,4,5,6].map(g=>`<button class="${(P.yk.grade||1)===g?'on':''}" onclick="pickGrade(${g})">${g===1?'K–1':'G'+g}</button>`).join('')}</div>`;
 // helpers for packs
 function bk(id,land,e,name,sub,rows,o){return Object.assign({id,land,e,name,sub,bank:QB(rows)},o||{})}
 function gn(id,land,e,name,sub,gen,o){return Object.assign({id,land,e,name,sub,gen},o||{})}
@@ -2745,7 +2745,7 @@ function isFocus(k){return yFocus().includes(k)}
 function yTabs(){const f=yFocus();if(!f.length)return ROADS.slice();const a=f.map(k=>ROADS.find(r=>r.k===k)).filter(Boolean);return P.yk.focusOnly?a:a.concat(ROADS.filter(r=>!f.includes(r.k)))}
 function focusBar(){if(!yK1())return'';const f=yFocus();
   if(!f.length&&!P.yk.focusSet)return`<div class="card" style="display:flex;gap:10px;align-items:center;padding:12px;background:#fff7d6"><span style="font-size:34px">🎯</span><div style="flex:1"><b>Grown-ups:</b> choose which subjects your child should focus on.<br><small class="muted">Focus subjects come first and fill most of Today's Quest.</small></div><button class="btn sm" onclick="focusGate()">Choose</button></div>`;
-  return`<div class="center" style="margin:8px 0 6px"><span class="pill" style="background:#fff7d6">🎯 Focus: ${f.length?f.map(k=>{const r=ROADS.find(x=>x.k===k);return r?r.e+' '+r.name:''}).join(' · '):'All subjects'}${P.yk.focusOnly&&f.length?' <small>(only these)</small>':''}</span> <button class="btn sec sm" onclick="focusGate()">Change</button></div>`}
+  return`<div class="center" style="margin:8px 0 6px"><span class="pill" style="background:#fff7d6">🎯 Focus: ${f.length?f.map(k=>{const r=ROADS.find(x=>x.k===k);return r?r.e+' '+r.name:''}).join(' · '):'All subjects'}${P.yk.focusOnly&&f.length?' · 🔒 locked by a grown-up':''}</span> <button class="btn sec sm" onclick="focusGate()">Change</button></div>`}
 // Today's Quest: questions come from focus subjects (reviews of anything already learned still appear)
 function yFocusPool(pool,done,open){const f=yFocus();if(!f.length)return pool;const inF=L=>LVM[L.id]&&f.includes(LVM[L.id].road.k);
   let a=done.filter(inF);if(a.length<4)a=a.concat(open.filter(inF));return a.length?a:pool}
@@ -2759,11 +2759,17 @@ function focusPick(ans){if(ans!=null&&+(document.getElementById('fpin')||{}).val
   const why={read:'Blending sounds, word families, stories',fil:'Tagalog words with Bisaya & English help',lang:'Words, sentences, tracing & writing',math:'Counting, + and −, money, time',mak:'Music, arts, PE, health & community',art:'Drawing, colors & creating',gmrc:'Good manners & values'};
   modal(`<div class="kid"><h2>🎯 What should ${esc(P.name)} focus on?</h2><p class="muted" style="margin-top:-4px">Pick 1–3 subjects. They come first on the castle screen and fill most of Today's Quest.</p>
    <div style="display:grid;gap:8px">${roads.map(r=>`<label style="display:flex;gap:10px;align-items:center;background:#fff;border-radius:12px;padding:10px;border:2px solid #eadfc8;cursor:pointer"><input type="checkbox" class="fchk" value="${r.k}" ${f.includes(r.k)?'checked':''} style="width:22px;height:22px"><span style="font-size:28px">${r.e}</span><span><b>${r.name}</b><br><small class="muted">${why[r.k]||r.full}</small></span></label>`).join('')}</div>
-   <label style="display:flex;gap:8px;align-items:center;margin-top:12px"><input type="checkbox" id="fonly" ${P.yk.focusOnly?'checked':''} style="width:20px;height:20px"> Show <b>only</b> the focus subjects (hide the others)</label>
+   <label style="display:flex;gap:8px;align-items:center;margin-top:12px"><input type="checkbox" id="fonly" ${P.yk.focusOnly?'checked':''} style="width:20px;height:20px"> <span>🔒 <b>Lock:</b> my child can open <b>only</b> these subjects (others hidden, grade switching off)</span></label>
    <div class="row" style="margin-top:14px"><button class="btn green" onclick="focusSave()">✔ Save</button><button class="btn sec" onclick="focusSave(true)">All subjects</button></div></div>`)}
 function focusSave(all){const ks=all?[]:[...document.querySelectorAll('.fchk:checked')].map(x=>x.value);
   P.yk.focus=ks;P.yk.focusOnly=!all&&ks.length>0&&!!(document.getElementById('fonly')||{}).checked;P.yk.focusSet=true;if(ks.length)P.yk.tab=ks[0];save();closeModal();
-  toast(ks.length?'🎯 Focus saved!':'🎯 All subjects — no focus');scrYoung()}
+  toast(ks.length?(P.yk.focusOnly?'🔒 Locked to: '+ks.map(k=>{const r=ROADS.find(x=>x.k===k);return r?r.name:k}).join(', '):'🎯 Focus saved!'):'🎯 All subjects — no focus');scrYoung()}
+
+// ---------- 🔒 lock: the child can open ONLY the chosen subjects (Kinder & Grade 1) ----------
+function yLocked(){return yK1()&&!!P.yk.focusOnly&&yFocus().length>0}
+function yLockedOut(id){if(!yLocked())return false;const e=LVM[id];return !!(e&&e.road&&!isFocus(e.road.k))}
+{const _pg=pickGrade;pickGrade=function(g){if(yLocked()&&g!==1){toast('🔒 Locked by a grown-up — only '+yFocus().map(k=>{const r=ROADS.find(x=>x.k===k);return r?r.name:k}).join(', ')+' for now');return}return _pg.apply(this,arguments)}}
+{const _sl2=startLevel;startLevel=function(id){if(yLockedOut(id)){toast('🔒 This subject is locked by a grown-up');return}return _sl2.apply(this,arguments)}}
 // ================= 🌉 SOUND BRIDGE v2 — read out loud: sounds → words → sentences (Kinder & Grade 1 Reading) =================
 // Stage 1 vowel-first (at, en, ip) · Stage 2 vowel-last (ba be bi bo bu) · Stage 3 3-letter words (b + at) · Stage 4 sentences of 2–3 letter words.
 // Every lesson = 30 items: "Remember?" from earlier lessons → learn with TUDLO → read on your own → mixed practice.
@@ -2803,18 +2809,25 @@ const YBRIDGE=[
   brL('bc6','bridge3','🏆','Word Builder Castle','30 mixed words!',null,{boss:true,mix:['bc1','bc2','bc3','bc4','bc5']}),
   brL('bs1','bridge4','📗','English sentences: I am Bo.','Read sentences with 2- and 3-letter words',null,{sent:'en'}),
   brL('bs2','bridge4','📙','Ba-Be-Bi-Bo-Bu sentences: Si Bo.','Basahin: May aso si Bo.',null,{sent:'fil'}),
-  brL('bs3','bridge4','👑','Sentence Castle','Read 30: words & sentences!',null,{boss:true,sent:'mix'}),
-  brL('brr','bridge1','🔁','Remember Station','Practice the sounds you might forget',null,{chain:'bremember',review:true})
+  brL('bs3','bridge4','👑','English Sentence Castle','Read 30 English words & sentences!',null,{boss:true,sent:'en'}),
+  brL('bs4','bridge4','🏯','Kastilyo ng Pangungusap','Basahin ang 30 pantig at pangungusap!',null,{boss:true,sent:'fil'}),
+  brL('brr','bridge1','🔁','Remember Station (English)','Practice the English sounds you might forget',null,{chain:'bremember',review:true,rlang:'en'}),
+  brL('brf','bridge2','🔁','Balikan (Tagalog)','Ulitin ang ba-be-bi-bo-bu na nakalimutan',null,{chain:'bremember',review:true,rlang:'fil'})
 ];
-Object.defineProperty(YBRIDGE.find(L=>L.id==='brr'),'sub',{get(){const n=brDueList().length;return n?`🔁 ${n} sound${n>1?'s':''} to practice today`:'Practice the sounds you might forget'}});
+// one language per lesson: English (vowel-first, words, English sentences) or Tagalog (ba-be-bi-bo-bu, Tagalog sentences) — never mixed
+YBRIDGE.forEach(L=>{L.blang=L.rlang||((L.land==='bridge2'||L.sent==='fil')?'fil':'en')});
+function brLangOf(t){return brKind(t)==='cv'||BR_SENT_FIL.some(s=>s[0]===t)?'fil':'en'}
+Object.defineProperty(YBRIDGE.find(L=>L.id==='brr'),'sub',{get(){const n=brDueList().filter(t=>brLangOf(t)==='en').length;return n?`🔁 ${n} to practice today`:'Practice the English sounds you might forget'}});
+Object.defineProperty(YBRIDGE.find(L=>L.id==='brf'),'sub',{get(){const n=brDueList().filter(t=>brLangOf(t)==='fil').length;return n?`🔁 ${n} uulitin ngayon`:'Ulitin ang ba-be-bi-bo-bu na nakalimutan'}});
 (function(){const R=ROADS.find(r=>r.k==='read');if(!R)return;R.lands.unshift(...BRIDGE_LANDS);R.list.unshift(...YBRIDGE);YBRIDGE.forEach(L=>{L.grade=1;LVM[L.id]={L,road:R}});GRADES[1].roads=ROADS.slice()})();
 
 // ---------- kinds & sounds ----------
 const isV=c=>'aeiou'.includes(c);
-function brKind(t){return /\s|[.!?,]/.test(t)?'sent':t.length===3?'cvc':isV(t[0])?'vc':'cv'}
+function brKind(t){return /\s|[.!?,]/.test(t)?'sent':t.length===3?'cvc':t.length===2?(isV(t[0])?'vc':'cv'):'word'}
+const brPlain=k=>k==='word'||k==='numw'||k==='spell';   // whole words: number words, spelling words
 function brParts(t){const k=brKind(t);return k==='cvc'?[t[0],t.slice(1)]:[t[0],t[1]]}
 function brSaySound(p,k){if(p.length===2)return BR_SAYAS[p]||p;return isV(p)?(k==='cv'?BR_VFIL[p]:BR_VEN[p]):(BR_CS[p]||p)}
-function brSayWhole(t){const k=brKind(t);if(k==='cv')return filToEn(t);return k==='vc'?(BR_SAYAS[t]||t):t}
+function brSayWhole(t){const k=brKind(t);if(k==='word')return t;if(k==='cv')return filToEn(t);return k==='vc'?(BR_SAYAS[t]||t):t}
 function brItem(t,o){const k=brKind(t);const it=Object.assign({t,kind:k,tries:0,mode:'read'},o||{});if(!it.lang)it.lang=k==='cv'?'fil':'en';return it}
 function brSentItem(lang,o){if(lang==='fil'){const s=pick(BR_SENT_FIL);return brItem(s[0],Object.assign({lang:'fil',en:s[1]},o||{}))}return brItem(pick(BR_SENT_EN),Object.assign({lang:'en'},o||{}))}
 
@@ -2826,20 +2839,20 @@ function brDueList(){const m=brM(),t=todayStr();return Object.keys(m).filter(k=>
 function brWeak(t){const x=brM()[t];return x&&x.miss>x.ok}
 
 // ---------- building a 30-item lesson ----------
-function brChainList(){return YBRIDGE.filter(L=>L.chain==='bridge')}
-function brPrevLesson(L){const c=brChainList();const i=c.indexOf(L);for(let j=i-1;j>=0;j--){if(c[j].bridge)return c[j]}return null}
-function brPrevItems(L){const c=brChainList();const i=c.indexOf(L);return c.slice(0,Math.max(0,i)).filter(x=>x.bridge&&P.yk.st[x.id]&&P.yk.st[x.id].done).flatMap(x=>x.bridge)}
-function brNextLesson(L){const c=brChainList();const i=c.indexOf(L);return c.slice(i+1).find(x=>x.bridge)||null}
-function buildBridge(L){const items=[];const add=(t,o)=>items.length<BR_N+6&&items.push(brItem(t,o));
-  const prev=brPrevItems(L);const due=brDueList();const st=P.yk.st[L.id]||{};
+function brChainList(L){const ch=(L&&L.chain&&L.chain!=='bremember')?L.chain:'bridge';const lg=L&&L.blang;return YBRIDGE.concat(window.YXTRA||[]).filter(x=>x.chain===ch&&(!lg||x.blang===lg||x===L))}
+function brPrevLesson(L){const c=brChainList(L);const i=c.indexOf(L);for(let j=i-1;j>=0;j--){if(c[j].bridge)return c[j]}return null}
+function brPrevItems(L){const c=brChainList(L);const i=c.indexOf(L);return c.slice(0,Math.max(0,i)).filter(x=>x.bridge&&P.yk.st[x.id]&&P.yk.st[x.id].done).flatMap(x=>x.bridge)}
+function brNextLesson(L){const c=brChainList(L);const i=c.indexOf(L);return c.slice(i+1).find(x=>x.bridge)||null}
+function buildBridge(L){if(L.kindx&&typeof buildXtra==='function')return buildXtra(L);const items=[];const add=(t,o)=>items.length<BR_N+6&&items.push(brItem(t,o));
+  const prev=brPrevItems(L);const due=brDueList().filter(t=>brKind(t)!=='word'&&brLangOf(t)===L.blang);const st=P.yk.st[L.id]||{};
   // 1) remember earlier lessons
   const rem=[...due.filter(t=>!(L.bridge||[]).includes(t)),...shuffle(prev.slice())].filter((t,i,a)=>a.indexOf(t)===i).slice(0,L.boss||L.sent?0:4);
   rem.forEach(t=>add(t,{review:true}));
-  if(L.review){const pool=[...due,...Object.keys(brM())].filter((t,i,a)=>a.indexOf(t)===i);if(!pool.length)return null;
+  if(L.review){const pool=[...due,...Object.keys(brM()).filter(t=>brLangOf(t)===L.blang)].filter((t,i,a)=>a.indexOf(t)===i);if(!pool.length)return null;
     while(items.length<Math.min(BR_N,pool.length*3))add(pool[items.length%pool.length],{review:true});return{items:shuffle(items),rem:[]}}
-  if(L.sent){const langs=L.sent==='mix'?['en','fil']:[L.sent];const words=L.sent==='fil'?YBRIDGE.filter(x=>x.land==='bridge2'&&x.bridge).flatMap(x=>x.bridge):YBRIDGE.filter(x=>x.land==='bridge3'&&x.bridge).flatMap(x=>x.bridge);
+  if(L.sent){const words=L.sent==='fil'?YBRIDGE.filter(x=>x.land==='bridge2'&&x.bridge).flatMap(x=>x.bridge):YBRIDGE.filter(x=>x.land==='bridge3'&&x.bridge).flatMap(x=>x.bridge);
     const pool=L.sent==='fil'?BR_SENT_FIL.map(s=>s[0]):L.sent==='en'?BR_SENT_EN.slice():[...BR_SENT_EN,...BR_SENT_FIL.map(s=>s[0])];const sents=shuffle(pool);
-    for(let i=0;items.length<BR_N;i++){if(i%3===2){add(pick(L.sent==='mix'?[...words,...YBRIDGE.filter(x=>x.land==='bridge2'&&x.bridge).flatMap(x=>x.bridge)]:words),{})}else{const s=sents[i%sents.length];const f=BR_SENT_FIL.find(x=>x[0]===s);add(s,{lang:f?'fil':'en',en:f?f[1]:null,mode:!L.boss&&i<4?'teach':'read'})}}
+    for(let i=0;items.length<BR_N;i++){if(i%3===2){add(pick(words),{})}else{const s=sents[i%sents.length];const f=BR_SENT_FIL.find(x=>x[0]===s);add(s,{lang:f?'fil':'en',en:f?f[1]:null,mode:!L.boss&&i<4?'teach':'read'})}}
     return{items,rem:[]}}
   const cur=L.mix?L.mix.flatMap(m=>LVL(m).bridge):L.bridge.slice();
   if(L.mix){const all=shuffle(cur);for(let i=0;items.length<BR_N;i++)add(all[i%all.length],{});return{items,rem:[]}}
@@ -2875,7 +2888,8 @@ function renderBridge(){const it=YL.items[YL.i];if(!it){endLesson();return}YL.to
   // tier decides help: 0 = TUDLO always shows first, 1 = shows first only for new "teach" items, 2 = child reads first
   const teach=YL.ad.tier===0||(YL.ad.tier===1&&it.mode==='teach');it.teach=teach;
   let body;
-  if(k==='sent'){const ws=it.t.split(' ');body=`<div class="kq">${it.lang==='fil'?'Basahin ang pangungusap!':'Read the sentence!'}</div>
+  if(brPlain(k)&&typeof xtraBody==='function'){body=xtraBody(it,teach)}
+  else if(k==='sent'){const ws=it.t.split(' ');body=`<div class="kq">${it.lang==='fil'?'Basahin ang pangungusap!':'Read the sentence!'}</div>
       <div class="brsent" id="brsent">${ws.map((w,j)=>`<span class="brw" id="brw${j}" onclick="brSayW(${j})">${esc(w)}</span>`).join(' ')}</div>${it.en?`<div class="muted" style="margin-top:4px">🇬🇧 ${esc(it.en)}</div>`:''}`}
   else{const [p1,p2]=brParts(it.t);const key=k==='cvc'?null:(k==='vc'?BR_KEY_EN[p1]:BR_KEY_FIL[p2]);const vi=k==='vc'?0:1;
     const tile=(p,j)=>`<div class="brt ${j===vi&&k!=='cvc'?'vow':''} ${k==='cvc'&&j===1?'rime':''}" id="brt${j}" onclick="brTap(${j})">${p}${k==='cvc'&&j===1?'<small>you know it!</small>':''}${key&&j===vi?`<small>${key[0]} ${key[1]}</small>`:''}</div>`;
@@ -2883,11 +2897,13 @@ function renderBridge(){const it=YL.items[YL.i];if(!it){endLesson();return}YL.to
   screen(yHead()+`<div class="card center">${brBar()}${it.review?`<div class="pill" style="background:#e3f0ff">🔁 Remember this one?</div>`:''}${it.back?`<div class="pill" style="background:#ffe9c7">🔙 Easier one — warm-up</div>`:''}${it.challenge?`<div class="pill" style="background:#ffd6f0">🚀 Challenge! +3 ⭐</div>`:''}
     ${body}<div class="brres" id="brres"></div><div class="row" id="brbtns"><button class="btn blue" onclick="brModel(true)">🔊 Listen</button></div><div class="fb" id="micfb"></div>
     ${ready?'':`<div class="lesson" style="margin-top:10px;text-align:left"><b>🎤 TUDLO can't hear on this device${micOn()?'':' (listening is off)'}.</b> Read along out loud with TUDLO! ${micOn()?'For automatic checking use the TUDLO app or Chrome.':'<a href="#" onclick="micToggle();return false">Turn listening on</a>'}</div>`}</div></div>`);
+  if(k==='spell'&&typeof spStart==='function'){spStart(it,teach,tok);return}
   (async()=>{if(teach){await brModel(false)}else{await sleep(450);if(!YL||YL.tok!==tok)return;const r=$('#brrow');if(r)r.classList.add('merged');if(k!=='sent'){tone(300,.12);tone(600,.18,'sine',.06,.12)}
-      await say(k==='sent'?(it.lang==='fil'?'Basahin mo!':'Read it!'):k==='cvc'?'Can you read this word?':'Can you say this one?',.9)}
+      await say(k==='sent'?(it.lang==='fil'?'Basahin mo!':'Read it!'):brPlain(k)?'Can you read this word?':k==='cvc'?'Can you read this word?':'Can you say this one?',.9)}
     if(!YL||YL.tok!==tok)return;brYourTurn(!teach)})()}
 function brSayW(j){const it=YL.items[YL.i];const w=it.t.split(' ')[j];const el=$('#brw'+j);if(el){el.classList.add('on');say(w.replace(/[.!?,]/g,''),.75,null,it.lang).then(()=>el&&el.classList.remove('on'))}}
 async function brModel(slow){if(!YL||YL.kind!=='bridge')return;const it=YL.items[YL.i];const tok=YL.tok;const alive=()=>YL&&YL.tok===tok;const t=it.t,k=it.kind;
+  if(brPlain(k)){const el=$('#brbig');if(el)el.classList.add('on');if(k==='spell'&&slow){for(const c of t){await say(c,.8);if(!alive())return;await sleep(120)}}await say(t,slow?.6:.75);if(el)el.classList.remove('on');return}
   if(k==='sent'){const ws=t.split(' ');for(let j=0;j<ws.length;j++){const el=$('#brw'+j);if(!el)return;el.classList.add('on');await say(ws[j].replace(/[.!?,]/g,''),slow?.6:.75,null,it.lang);el.classList.remove('on');if(!alive())return;await sleep(slow?250:80)}
     await say(t,.8,null,it.lang);return}
   const [p1,p2]=brParts(t);const row=$('#brrow');if(!row)return;row.classList.remove('merged');const a=$('#brt0'),b=$('#brt1');
@@ -2899,7 +2915,7 @@ async function brModel(slow){if(!YL||YL.kind!=='bridge')return;const it=YL.items
 function brTap(j){const it=YL.items[YL.i],k=it.kind,p=brParts(it.t)[j];const el=$('#brt'+j);if(el){el.classList.add('on');say(brSaySound(p,k),.7).then(()=>el&&el.classList.remove('on'))}}
 // listening starts by itself after TUDLO finishes talking — no tapping, no grown-up checking
 async function brYourTurn(quiet){const b=$('#brbtns');if(!b)return;const it=YL.items[YL.i];const k=it.kind;const tok=YL.tok;
-  const ask=k==='sent'?(it.lang==='fil'?'Ikaw naman! Basahin mo.':'Your turn! Read the sentence.'):k==='cvc'?'Your turn! Read the word.':'Your turn! Say it.';
+  const ask=k==='sent'?(it.lang==='fil'?'Ikaw naman! Basahin mo.':'Your turn! Read the sentence.'):k==='spell'?'Now read the word you spelled!':brPlain(k)||k==='cvc'?'Your turn! Read the word.':'Your turn! Say it.';
   if(!micReady()){brNoMic();return}
   b.innerHTML=`<button class="btn blue" onclick="brModel(true)">🔊 Listen ${it.teach?'again':''}</button><button class="btn micbtn" id="brmic" onclick="brListen(this)">🎤 Get ready…</button>`;
   await say(quiet?(k==='sent'?(it.lang==='fil'?'Basahin mo!':'Read it!'):'Say it!'):ask,.9);if(!YL||YL.tok!==tok)return;brAutoListen()}
@@ -2913,10 +2929,12 @@ async function brListen(btn){if(!YL||btn.dataset.busy)return;const it=YL.items[Y
   btn.innerHTML=`👂 Listening… say it now! <span class="mbars"><i></i><i></i><i></i></span>`;P.yk.mic=P.yk.mic||{n:0,ok:0};P.yk.mic.n++;
   let r=await listen(it.lang);if(r.err==='nolang'&&it.lang==='fil')r=await listen('en');
   if(!YL||YL.tok!==tok||!btn.isConnected)return;delete btn.dataset.busy;btn.classList.remove('listen');
-  if(r.err){const m=micErrMsg(r.err);if(m){toast(m);brNoMic();return}it.quiet=(it.quiet||0)+1;
+  if(r.err){if(['not-allowed','start','service-not-allowed'].includes(r.err)){it.blk=(it.blk||0)+1;if(it.blk>=3){brNoMic();return}
+      btn.innerHTML='🎤 Tap here & say it!';btn.classList.add('pulse');micFb('👆 Tap the red 🎤 button (and press Allow if the phone asks for the microphone)!','warn');return}
+    const m=micErrMsg(r.err);if(m){toast(m);brNoMic();return}it.quiet=(it.quiet||0)+1;
     if(it.quiet<=2){btn.innerHTML='🎤 Get ready…';await say('I did not hear you. Say it loud!',.9);if(YL&&YL.tok===tok)brAutoListen();return}
     btn.innerHTML='🎤 Tap me and say it!';btn.classList.add('pulse');say('Tap the microphone when you are ready.',.9);return}
-  const s=k==='sent'?brSentScore(it.t,r.alts,it.lang):brScore(it.t,r.alts);
+  const s=k==='sent'?brSentScore(it.t,r.alts,it.lang):brPlain(k)?brWordScore(it.t,r.alts):brScore(it.t,r.alts);
   if(k==='sent')(s.hit||[]).forEach((h,j)=>{const el=$('#brw'+j);if(el){el.classList.remove('miss','said');el.classList.add(h?'said':'miss')}});
   if(s.score===2){P.yk.mic.ok++;brRight();return}brWrong(s)}
 
@@ -2928,9 +2946,9 @@ function brRight(){const it=YL.items[YL.i];const t=it.t,a=YL.ad;const first=it.t
   let starsWon=first?(it.challenge?3:1):0;a.stars+=starsWon;
   if(first){a.streak++;a.best=Math.max(a.best,a.streak)}else a.streak=0;
   const row=$('#brrow');if(row)row.classList.add('merged','good');if(it.kind==='sent')document.querySelectorAll('.brw').forEach(e=>{e.classList.remove('miss');e.classList.add('said')});
-  const pic=it.kind==='cvc'&&BR_CVC_E[t]?` ${BR_CVC_E[t]}`:'';
+  const pic=it.pic?` ${it.pic}`:it.kind==='cvc'&&BR_CVC_E[t]?` ${BR_CVC_E[t]}`:'';
   const msg=BR_STREAK[a.streak]||'';const n=first?2:1;
-  $('#brres').innerHTML=yWin(n,`${it.kind==='sent'?'':`<div class="brword">${t}${pic}</div>`}<div style="font-size:22px">${starsWon?'⭐'.repeat(starsWon)+' ':''}${pick(BR_YAY)}</div>${msg?`<div class="brstreak">${msg}</div>`:''}`);
+  $('#brres').innerHTML=yWin(n,`${it.kind==='sent'?'':`<div class="brword">${t}${pic}</div>`}${it.reveal||''}<div style="font-size:22px">${starsWon?'⭐'.repeat(starsWon)+' ':''}${pick(BR_YAY)}</div>${msg?`<div class="brstreak">${msg}</div>`:''}`);
   SFX.coin();confetti(a.streak>=5&&a.streak%5===0?40:10);brStarPop();
   // treasure chest every 10 correct
   const okCount=YL.items.slice(0,YL.i+1).filter(x=>x.okd).length+1;it.okd=true;
@@ -2947,18 +2965,19 @@ function brWrong(s){const it=YL.items[YL.i];it.tries++;SFX.miss();const a=YL.ad;
   const heard=s.heard?`I heard "<b>${esc(s.heard)}</b>". `:'';const fb=$('#micfb');
   const down=it.tries===1?brAdapt():'';
   if(it.tries>=3){brRecord(t,false);if(!it.re)YL.n++;fb.className='fb warn';fb.innerHTML=`${heard}Let's read it together: <b>${esc(t)}</b>. You'll see it again soon — you're getting better! 💪${down}`;
-    yRequeue(x=>brItem(x.t,{lang:x.lang,en:x.en,review:true,mode:'teach'}));
+    yRequeue(x=>brItem(x.t,{kind:x.kind,pic:x.pic,reveal:x.reveal,lang:x.lang,en:x.en,review:true,mode:'teach'}));
     $('#brbtns').innerHTML=`<button class="btn blue" onclick="brModel(true)">🔊 Listen again</button><button class="btn green" onclick="yNext()">Next ▶</button>`;
     const w=k==='sent'?t:brSayWhole(t);say("Good try! Let's read it together.",.9).then(()=>say(w,.6,null,k==='sent'?it.lang:undefined)).then(()=>sleep(900)).then(()=>say(w,.6,null,k==='sent'?it.lang:undefined));return}
   fb.className='fb warn';let hint;
   if(k==='sent'){const miss=(s.hit||[]).map((h,j)=>h?null:t.split(' ')[j]).filter(Boolean);hint=miss.length?`Good try! Let's read the <span style="color:#e67e22">orange</span> words together.`:'Good try! Read it again, loud and clear.'}
+  else if(brPlain(k)){hint=s.score===1?`Close! Listen carefully: <b>${esc(t)}</b>.`:`Good try! Listen, then read it again.`}
   else{const [p1,p2]=brParts(t);hint=s.score===1?(s.why==='start'?`Close! Start with the sound <b>${p1}</b>.`:s.why==='vowel'?`Close! Listen to the <b>${k==='vc'?p1:k==='cv'?p2:p2[0]}</b> sound.`:`Close! Listen to the end sound.`):`Good try! Listen to each sound, then push them together.`}
   fb.innerHTML=heard+hint+down;const b=$('#brmic');if(b)b.innerHTML='🎤 Try again';
   const tk=YL.tok;say(s.score===1?'So close! Listen.':'Good try! Listen again.',.9).then(()=>brModel(true)).then(()=>{if(YL&&YL.tok===tk)return say('Your turn!',.9)}).then(()=>{if(YL&&YL.tok===tk)brAutoListen()})}
 // level up / level down / go back — returns a banner (or '')
 function brAdapt(){const a=YL.ad,L=YL.L;const r=a.recent;const misses=r.filter(x=>!x).length;
   if(a.streak>0&&a.streak%5===0&&a.tier<2){a.tier++;a.ups++;tone(523,.12,'triangle',.08);tone(784,.2,'triangle',.08,.12);
-    if(a.tier===2){const nx=brNextLesson(L);const pool=nx&&!L.sent?nx.bridge:null;if(pool){const add=shuffle(pool.slice()).slice(0,2).map(t=>brItem(t,{challenge:true,mode:'teach'}));YL.items.splice(YL.i+2,0,...add)}}
+    if(a.tier===2){const nx=brNextLesson(L);const pool=nx&&!L.sent?nx.bridge:null;if(pool){const add=shuffle(pool.slice()).slice(0,2).map(t=>brItem(t,{kind:L.kindx,challenge:true,mode:'teach'}));YL.items.splice(YL.i+2,0,...add)}}
     say(a.tier===2?'Level up! Super reader! Here come harder ones!':'Level up! Now you read on your own!',.9);
     return`<div class="brlevel up">⬆️ LEVEL UP! ${BR_TIER[a.tier][0]} ${BR_TIER[a.tier][1]}</div>`}
   if(r.length>=4&&misses>=3){a.recent=[];
@@ -2969,7 +2988,7 @@ function brAdapt(){const a=YL.ad,L=YL.L;const r=a.recent;const misses=r.filter(x
     if(a.backs<2){a.backs++;const pl=brPrevLesson(L);let easy=pl?shuffle(pl.bridge.slice()).slice(0,4):[];
       if(L.sent)easy=shuffle(YBRIDGE.filter(x=>x.land===(L.sent==='fil'?'bridge2':'bridge3')&&x.bridge&&P.yk.st[x.id]&&P.yk.st[x.id].done).flatMap(x=>x.bridge)).slice(0,4);
       if(!easy.length&&L.bridge)easy=shuffle(L.bridge.slice()).slice(0,3);
-      YL.items.splice(YL.i+1,0,...easy.map(t=>brItem(t,{back:true,mode:'teach'})));
+      YL.items.splice(YL.i+1,0,...easy.map(t=>brItem(t,{kind:L.kindx,back:true,mode:'teach'})));
       P.yk.brBack=P.yk.brBack||{};P.yk.brBack[L.id]=(P.yk.brBack[L.id]||0)+1;
       say("Let's warm up with some easier ones first.",.9);
       return`<div class="brlevel down">🔙 Back to easier ones for a bit — then we try again!</div>`}}
@@ -3041,6 +3060,114 @@ function brSentScore(target,alts,lang){const tw=micNorm(target).split(' ').filte
 .brstreak{font-size:19px;font-weight:900;color:#c0392b;margin-top:4px}
 .brlevel{border-radius:14px;padding:10px;font-weight:900;font-size:18px;margin-top:8px}.brlevel.up{background:linear-gradient(90deg,#ffd6f0,#e3f0ff);color:#6a1b9a}.brlevel.down{background:#ffe9c7;color:#8a5a00}
 .brchips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0}.brchip{font-size:30px;font-weight:900;background:#fff;border-radius:12px;padding:4px 14px;box-shadow:0 4px 0 #d6c4a2;cursor:pointer;color:#1f4fa3}
+`;document.head.appendChild(s)})();
+// ================= 🔤 NUMBER WORDS (Math K–1) & ✏️ SPELL & READ (Reading K–1) — on the Sound Bridge engine =================
+// Number words: the child reads "seven" (no digit shown) out loud → then sees 7 and dots.
+// Spell & Read: picture (animal) or color → drag the letters into the boxes → then read the word out loud. TUDLO corrects both.
+// English only (no Tagalog mixed in these lessons).
+const NW_ONES=['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen','twenty'];
+const NW_TENS={20:'twenty',30:'thirty',40:'forty',50:'fifty',60:'sixty',70:'seventy',80:'eighty',90:'ninety',100:'one hundred'};
+const NW_VAL={};NW_ONES.forEach((w,i)=>NW_VAL[w]=i);Object.entries(NW_TENS).forEach(([n,w])=>NW_VAL[w]=+n);
+function numWord(n){n=+n;if(n<=20)return NW_ONES[n];if(n===100)return 'one hundred';const t=Math.floor(n/10)*10,o=n%10;return NW_TENS[t]+(o?' '+NW_ONES[o]:'')}
+const SP_ANIMALS={cat:'🐱',dog:'🐶',pig:'🐷',hen:'🐔',cow:'🐮',bat:'🦇',rat:'🐀',ant:'🐜',bee:'🐝',fox:'🦊',owl:'🦉',ram:'🐏'};
+const SP_COLORS={red:'#e53935',blue:'#1e88e5',pink:'#f48fb1',gray:'#9e9e9e',green:'#43a047',black:'#212121',white:'#ffffff',brown:'#8d5524',yellow:'#fdd835',orange:'#fb8c00',purple:'#8e24aa'};
+const spPic=w=>SP_ANIMALS[w]||(SP_COLORS[w]?`<span class="spcol" style="background:${SP_COLORS[w]}"></span>`:'');
+function xL(id,land,chain,kindx,e,name,sub,items,o){return Object.assign({id,land,chain,kindx,e,name,sub,bridge:items,trace:'bridge',blang:'en'},o||{})}
+const YNUMW=[
+  xL('nwa','numw','numw','numw','1️⃣','Number words: one to ten','Read: one, two, three…',['one','two','three','four','five','six','seven','eight','nine','ten']),
+  xL('nwb','numw','numw','numw','🔟','Number words: eleven to twenty','Read: eleven, twelve…',['eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen','twenty']),
+  xL('nwc','numw','numw','numw','💯','Number words: tens to one hundred','Read: thirty, forty… one hundred',['ten','twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety','one hundred']),
+  xL('nwd','numw','numw','numw','🏰','Number Word Castle','Read 30 number words!',null,{boss:true,mix:['nwa','nwb','nwc']})
+];
+const YSPELL=[
+  xL('spa','spell','spell','spell','🐱','Spell animals: cat · dog · pig','Drag the letters, then read!',['cat','dog','pig','hen','cow','bat']),
+  xL('spb','spell','spell','spell','🦊','Spell animals: fox · owl · bee','Drag the letters, then read!',['rat','ant','bee','fox','owl','ram']),
+  xL('spc','spell','spell','spell','🎨','Spell colors: red · blue · pink','Drag the letters, then read!',['red','blue','pink','gray','green']),
+  xL('spd','spell','spell','spell','🌈','Spell colors: yellow · orange','Longer color words!',['black','white','brown','yellow','orange','purple']),
+  xL('spe','spell','spell','spell','🏆','Spelling Castle','Spell and read 15 words!',null,{boss:true,mix:['spa','spb','spc','spd']})
+];
+window.YXTRA=[...YNUMW,...YSPELL];
+(function(){
+  const M=ROADS.find(r=>r.k==='math'),R=ROADS.find(r=>r.k==='read');
+  if(M){M.lands.push({k:'numw',e:'🔤',name:'Number Words',sub:'Read seven, twelve, forty — no digits! 🎤',bg:'#eef6ff'});M.list.push(...YNUMW);YNUMW.forEach(L=>{L.grade=1;LVM[L.id]={L,road:M}})}
+  if(R){const at=R.lands.findIndex(l=>l.k==='bridge4');R.lands.splice(at<0?R.lands.length:at+1,0,{k:'spell',e:'✏️',name:'Spell & Read',sub:'Drag the letters, then read it! 🎤',bg:'#fff4e6'});
+    const li=R.list.findIndex(x=>x.id==='brr');R.list.splice(li<0?R.list.length:li,0,...YSPELL);YSPELL.forEach(L=>{L.grade=1;LVM[L.id]={L,road:R}})}
+  GRADES[1].roads=ROADS.slice()})();
+
+// ---------- lessons ----------
+function buildXtra(L){const kind=L.kindx;const mk=(t,o)=>brItem(t,Object.assign({kind,lang:'en'},o||{}));const items=[];
+  const N=kind==='spell'?15:BR_N;const prev=brPrevItems(L);
+  if(L.mix){const all=shuffle(L.mix.flatMap(m=>LVL(m).bridge));for(let i=0;items.length<N;i++)items.push(mk(all[i%all.length]));return{items:xtraDecorate(items),rem:[]}}
+  const cur=L.bridge.slice();const rem=shuffle(prev.slice()).slice(0,kind==='spell'?2:4);
+  rem.forEach(t=>items.push(mk(t,{review:true})));
+  shuffle(cur.slice()).forEach(t=>items.push(mk(t,{mode:'teach'})));
+  if(kind!=='spell')shuffle(cur.slice()).forEach(t=>items.push(mk(t)));
+  let k=0;while(items.length<N){items.push(k%3===2&&prev.length?mk(pick(prev),{review:true}):mk(pick(cur)));k++}
+  return{items:xtraDecorate(items.slice(0,N)),rem}}
+function xtraDecorate(items){items.forEach(it=>{if(it.kind==='numw'){const n=NW_VAL[it.t];it.reveal=`<div class="nwrev">${esc(it.t)} = <b>${n}</b></div>${n<=20?`<div class="nwdots">${'●'.repeat(n)}</div>`:''}`}
+  if(it.kind==='spell')it.pic=spPic(it.t)});return items}
+{const _bi=brItem;brItem=function(t,o){const it=_bi(t,o);return xtraDecorate([it])[0]}}
+function xtraBody(it,teach){if(it.kind==='spell')return spBody(it,teach);
+  return`<div class="kq">${it.kind==='numw'?'Read the number word!':'Read the word!'}</div><div class="brbig" id="brbig" onclick="say('${it.t}',.7)">${esc(it.t)}</div>`}
+// numbers said as digits ("7", "40") count as the word
+function brWordScore(t,alts){const conv=(alts||[]).map(a=>String(a).replace(/\b(\d{1,3})\b/g,(m,d)=>+d<=100?numWord(+d):m));
+  const tw=micNorm(t);let best={score:0,heard:''};
+  conv.forEach(a=>{const n=micNorm(a);if(!best.heard)best.heard=n;if(n===tw||(' '+n+' ').includes(' '+tw+' '))best={score:2,heard:n}});
+  if(best.score===2)return best;if(!/ /.test(tw)){const m=wordHeard(t,conv);return{score:m.score,heard:m.heard||best.heard}}
+  const f=sentHeard(t,conv);return{score:f.frac>=.99?2:f.frac>=.5?1:0,heard:best.heard}}
+
+// ---------- ✏️ spelling: drag (or tap) letters into the boxes ----------
+const SP_EXTRA='abcdefghijklmnoprstuwy';
+function spBody(it,teach){const w=it.t;const tier=YL.ad.tier;const nExtra=tier===0?0:tier===1?1:2;
+  const extra=[];while(extra.length<nExtra){const c=pick(SP_EXTRA.split(''));if(!w.includes(c)&&!extra.includes(c))extra.push(c)}
+  it.filled=Array(w.length).fill(false);it.miss=0;it.slotMiss=Array(w.length).fill(0);
+  return`<div class="kq">Spell it! Drag the letters into the boxes.</div><div class="sppic" onclick="say('${w}',.7)">${it.pic}</div>
+   <div class="spslots" id="spslots">${[...w].map((c,i)=>`<div class="spslot" data-i="${i}"></div>`).join('')}</div>
+   <div class="sptiles" id="sptiles">${shuffle([...w,...extra]).map((c,j)=>`<div class="sptile" data-c="${c}">${c}</div>`).join('')}</div>`}
+function spStart(it,teach,tok){spBind();const w=it.t;
+  (async()=>{await sleep(300);if(!YL||YL.tok!==tok)return;
+    if(teach){await say(`Spell ${w}.`,.85);if(!YL||YL.tok!==tok)return;await say([...w].join(', '),.75)}else await say(SP_ANIMALS[w]?'What animal is this? Spell it!':'What color is this? Spell it!',.9)})();
+  const b=$('#brbtns');if(b)b.innerHTML=`<button class="btn blue" onclick="brModel(true)">🔊 Listen</button>`}
+function spBind(){const tiles=document.querySelectorAll('#sptiles .sptile');tiles.forEach(t=>{
+  t.addEventListener('pointerdown',e=>{if(t.classList.contains('used'))return;e.preventDefault();const sx=e.clientX,sy=e.clientY;let ghost=null;const r=t.getBoundingClientRect();
+    const move=ev=>{const dx=ev.clientX-sx,dy=ev.clientY-sy;if(!ghost&&Math.hypot(dx,dy)>8){ghost=t.cloneNode(true);ghost.classList.add('ghost');ghost.style.width=r.width+'px';ghost.style.height=r.height+'px';document.body.appendChild(ghost);t.classList.add('lift')}
+      if(ghost){ghost.style.left=(ev.clientX-r.width/2)+'px';ghost.style.top=(ev.clientY-r.height/2)+'px';document.querySelectorAll('.spslot').forEach(s=>s.classList.remove('hover'));const u=document.elementFromPoint(ev.clientX,ev.clientY);const sl=u&&u.closest&&u.closest('.spslot');if(sl)sl.classList.add('hover')}};
+    const up=ev=>{window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up);window.removeEventListener('pointercancel',up);t.classList.remove('lift');document.querySelectorAll('.spslot').forEach(s=>s.classList.remove('hover'));
+      let slot=null;if(ghost){ghost.remove();const u=document.elementFromPoint(ev.clientX,ev.clientY);slot=u&&u.closest&&u.closest('.spslot');if(!slot)return}
+      else slot=[...document.querySelectorAll('.spslot')].find(s=>!s.classList.contains('ok'));   // a tap puts it in the next empty box
+      if(slot)spPlace(t,slot)};
+    window.addEventListener('pointermove',move);window.addEventListener('pointerup',up);window.addEventListener('pointercancel',up)})})}
+function spPlace(tile,slot){const it=YL.items[YL.i];if(!it||it.kind!=='spell'||it.spelled)return;const i=+slot.dataset.i,w=it.t,c=tile.dataset.c;
+  if(slot.classList.contains('ok')){toast('That box is done — try another box');return}
+  if(c===w[i]){slot.textContent=c;slot.classList.add('ok');slot.classList.remove('hint');tile.classList.add('used');it.filled[i]=true;tone(520+i*110,.12,'triangle',.06);say(c,.8);
+    if(it.filled.every(Boolean))spDone();return}
+  // wrong letter: bounce back, say why, show a hint after 2 misses in this box
+  it.miss++;it.slotMiss[i]++;SFX.miss();slot.classList.remove('bad');void slot.offsetWidth;slot.classList.add('bad');tile.classList.add('shake');setTimeout(()=>tile.classList.remove('shake'),450);
+  const fb=$('#micfb');fb.className='fb warn';fb.innerHTML=`That's <b>${c}</b>. Box ${i+1} needs a different letter. Listen: <b>${w}</b> — ${[...w].map((x,j)=>j===i?`<b style="color:#d13b3b">_</b>`:(it.filled[j]?x:'_')).join(' ')}`;
+  if(it.slotMiss[i]>=2){slot.dataset.h=w[i];slot.classList.add('hint')}
+  if(it.miss>=4)document.querySelectorAll('.spslot').forEach((s,j)=>{if(!it.filled[j]){s.dataset.h=w[j];s.classList.add('hint')}});
+  say(`That is ${c}. Listen: ${w}. ${[...w].join(', ')}.`,.8)}
+async function spDone(){const it=YL.items[YL.i];it.spelled=true;if(it.miss>0)it.tries+=1;const tok=YL.tok;
+  document.querySelectorAll('.spslot').forEach(s=>s.classList.add('done'));$('#micfb').innerHTML=it.miss?'':'<b style="color:#1d6b3a">Perfect spelling! ✨</b>';
+  confetti(10);tone(660,.15,'triangle',.07);tone(990,.25,'triangle',.07,.15);
+  await say(`${it.miss?'You spelled it!':'Perfect spelling!'} ${it.t}.`,.85);if(!YL||YL.tok!==tok)return;brYourTurn(false)}
+
+// ---------- styles ----------
+(function(){const s=document.createElement('style');s.textContent=`
+.brbig{display:inline-block;font-size:56px;font-weight:900;letter-spacing:2px;color:#1f4fa3;background:#fff;border-radius:20px;padding:10px 24px;margin:14px 0 6px;box-shadow:0 5px 0 #d6c4a2;cursor:pointer;transition:.2s}
+.brbig.on{background:#ffe08a;transform:translateY(-4px)}
+.nwrev{font-size:28px;font-weight:900;color:#1d6b3a}.nwrev b{font-size:40px}.nwdots{font-size:22px;letter-spacing:4px;color:#e67e22;margin:2px 0}
+.sppic{font-size:84px;line-height:1.1;margin:6px 0;cursor:pointer}
+.spcol{display:inline-block;width:96px;height:96px;border-radius:50%;border:4px solid #fff;box-shadow:0 0 0 3px #d6c4a2,0 6px 0 #d6c4a2}
+.spslots{display:flex;justify-content:center;gap:8px;margin:10px 0}
+.spslot{position:relative;width:58px;height:66px;border-radius:14px;border:3px dashed #b9a27a;background:#fffdf6;font-size:46px;font-weight:900;color:#1f4fa3;display:flex;align-items:center;justify-content:center;transition:.15s}
+.spslot.hover{background:#fff3c4;border-color:#f2b632}.spslot.ok{border-style:solid;border-color:#2e9d5b;background:#e9fbe9}.spslot.done{background:#c8f7d4}
+.spslot.bad{animation:spbad .45s}@keyframes spbad{20%,60%{transform:translateX(-6px);background:#ffd6d0}40%,80%{transform:translateX(6px);background:#ffd6d0}}
+.spslot.hint:not(.ok)::after{content:attr(data-h);position:absolute;color:#d6c4a2;font-size:40px}
+.sptiles{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:8px 0 4px;touch-action:none}
+.sptile{width:56px;height:60px;border-radius:14px;background:#ffe08a;box-shadow:0 5px 0 #c9a227;font-size:40px;font-weight:900;color:#3a2a00;display:flex;align-items:center;justify-content:center;cursor:grab;user-select:none;touch-action:none}
+.sptile.used{visibility:hidden}.sptile.lift{opacity:.35}.sptile.shake{animation:spbad .45s}
+.sptile.ghost{position:fixed;z-index:9999;pointer-events:none;opacity:.95;transform:scale(1.12)}
 `;document.head.appendChild(s)})();
 // TUDLO grade pack — Grade 2 (MATATAG: Filipino, English, Mathematics, GMRC, Makabansa)
 (function(){
@@ -3344,6 +3471,237 @@ async function checkUpdate(){if(location.protocol!=='https:')return;try{
     setTimeout(()=>location.replace(location.pathname+'?v='+m[1]),900)}}catch(e){}}
 setTimeout(checkUpdate,2500);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate()});
 
+// ================= 🔧 TUDLO VOICE & PRONUNCIATION FIX (v6.7.1) =================
+// Every section is guarded: if a function it patches is missing, that section is skipped
+// (a warning goes to the console) instead of breaking the whole game.
+(function applyVoiceAndBugFixes() {
+  const step = (label, fn) => { try { fn(); } catch (e) { console.warn('[TUDLO voice fix] skipped:', label, e); } };
+
+  // ---------- 3. Warn when opened from file:// (Chrome blocks the mic there) ----------
+  // The Android APK has its own AndroidSTT bridge, so it is not warned.
+  step('file:// warning', () => {
+    if (location.protocol === 'file:' && !window.AndroidSTT && (typeof toast !== 'undefined')) {
+      setTimeout(() => toast('⚠️ The microphone needs https:// or localhost. Open tudlo.madyaw.com instead.'), 1200);
+    }
+  });
+
+  // ---------- 4. Recognizer spellings ----------
+  // ONLY true homophones / letter names / spelled sounds. Words with a DIFFERENT VOWEL
+  // (pen≠pan≠pin, cat≠cut, bat≠bet, pig≠peg, it≠at) are NOT accepted: telling those vowels
+  // apart is exactly what Sound Bridge teaches.
+  step('homophones', () => {
+    if (typeof SAMEAS === 'undefined' || !SAMEAS) return;
+    const EXTRA_SAME = {
+      // vowel-first (en-US)
+      at: ['at', 'att'],          an: ['an', 'ann', 'anne'],   am: ['am', 'um'],
+      ad: ['ad', 'add'],          ap: ['ap', 'app'],           as: ['as', 'az'],
+      ed: ['ed', 'edd'],          en: ['en', 'n'],             et: ['et'],
+      eg: ['eg', 'egg'],          em: ['em', 'm'],
+      it: ['it'],                 in: ['in', 'inn'],           ip: ['ip'],
+      ig: ['ig'],                 id: ['id'],                  is: ['is', 'iz'],
+      on: ['on'],                 ot: ['ot', 'ott'],           op: ['op'],
+      og: ['og'],                 ox: ['ox', 'ocks'],
+      up: ['up'],                 un: ['un'],                  ug: ['ug'],
+      ut: ['ut'],                 ud: ['ud'],                  us: ['us'],
+      // vowel-last (fil-PH / en-US fallback). Filipino "e" ≈ "eh/ay", "i" ≈ "ee"
+      ba: ['ba', 'bah', 'baa', 'bar'],  be: ['be', 'beh', 'bay'],  bi: ['bi', 'bee', 'b'],
+      bo: ['bo', 'boh', 'bow'],         bu: ['bu', 'boo'],
+      ma: ['ma', 'mah', 'maa'],         me: ['me', 'meh', 'may'],  mi: ['mi', 'mee'],
+      mo: ['mo', 'moh', 'mow'],         mu: ['mu', 'moo'],
+      sa: ['sa', 'sah'],                se: ['se', 'seh', 'say'],  si: ['si', 'see', 'sea', 'c'],
+      so: ['so', 'soh', 'sew'],         su: ['su', 'soo', 'sue'],
+      ta: ['ta', 'tah'],                te: ['te', 'teh', 'tay'],  ti: ['ti', 'tee', 'tea', 't'],
+      to: ['to', 'toh', 'toe', 'tow'],  tu: ['tu', 'too', 'two'],
+      la: ['la', 'lah'],                le: ['le', 'leh', 'lay'],  li: ['li', 'lee'],
+      lo: ['lo', 'loh', 'low'],         lu: ['lu', 'loo'],
+      pa: ['pa', 'pah'],                pe: ['pe', 'peh', 'pay'],  pi: ['pi', 'pee', 'pea', 'p'],
+      po: ['po', 'poh'],                pu: ['pu', 'poo'],
+      ka: ['ka', 'kah', 'ca'],          ke: ['ke', 'keh', 'kay', 'k'], ki: ['ki', 'key', 'kee'],
+      ko: ['ko', 'koh', 'co'],          ku: ['ku', 'koo', 'coo'],
+      // 3-letter words: same-sound spellings only
+      cat: ['cat', 'kat'],  sun: ['sun', 'son'],  bin: ['bin'],  pup: ['pup'],
+      bun: ['bun', 'bunn'], net: ['net', 'nett'], rug: ['rug'],  mop: ['mop']
+    };
+    for (const k in EXTRA_SAME) {
+      const prev = Array.isArray(SAMEAS[k]) ? SAMEAS[k] : [];
+      SAMEAS[k] = Array.from(new Set([...prev, ...EXTRA_SAME[k]]));
+    }
+    // Remove cross-collisions an older list may contain (one spelling counted for two sounds).
+    // "bee" is bi, not be; "pa" is not ba; "and" is not an/en.
+    const STRIP = { be: ['bee', 'b'], ba: ['pa'], an: ['and'], en: ['and', 'in'], in: ['en'], it: ['at', 'eat'], et: ['at', 'eat'] };
+    for (const k in STRIP) if (Array.isArray(SAMEAS[k])) SAMEAS[k] = SAMEAS[k].filter(x => !STRIP[k].includes(x));
+  });
+
+  // ---------- 5. "@" → "at", "&" → "and" before symbols are stripped ----------
+  step('micNorm symbols', () => {
+    if (!(typeof micNorm !== 'undefined')) return;
+    const _origMicNorm = micNorm;
+    micNorm = function (s) {
+      return _origMicNorm(String(s == null ? '' : s).replace(/@/g, ' at ').replace(/&/g, ' and '));
+    };
+  });
+
+  // ---------- 6. listen(): TTS cooldown, interim results, error normalising, no timer leaks ----------
+  step('listen', () => {
+    if (!(typeof listen !== 'undefined') || typeof STT === 'undefined') return;
+    let sttTimer = null, startTimer = null, callNo = 0;
+    const ready = () => { try { window.__sttReady && window.__sttReady(); } catch (e) {} };
+
+    listen = function (lang) {
+      try { (typeof sayStop !== 'undefined') && sayStop(); } catch (e) {}
+      try { (typeof micStop !== 'undefined') && micStop(); } catch (e) {}
+      clearTimeout(sttTimer); clearTimeout(startTimer);
+      const my = ++callNo;                    // a newer listen() cancels this one before it starts
+      STT.busy = true;
+      const loc = lang === 'fil' ? 'fil-PH' : 'en-US';
+      const done = v => { if (my === callNo) { STT.busy = false; clearTimeout(sttTimer); } return v; };
+
+      return new Promise(resolve => {
+        // 220 ms lets phone audio switch from speaker (TTS) to microphone cleanly
+        startTimer = setTimeout(() => {
+          if (my !== callNo) return resolve({ err: 'aborted' });
+
+          // --- Android APK: native SpeechRecognizer bridge ---
+          if (window.AndroidSTT) {
+            const id = 's' + (++STT.n);
+            STT.cb[id] = v => resolve(done(v));
+            try { AndroidSTT.listen(loc, id); }
+            catch (e) { delete STT.cb[id]; return resolve(done({ err: 'bridge' })); }
+            sttTimer = setTimeout(() => {
+              if (STT.cb[id]) {
+                try { AndroidSTT.cancel(); } catch (e) {}
+                if (window.__sttError) window.__sttError(id, 'timeout');
+                else { const cb = STT.cb[id]; delete STT.cb[id]; cb({ err: 'no-speech' }); }
+              }
+            }, 14000);
+            return;
+          }
+
+          // --- Browser: Web Speech API ---
+          const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+          if (!SR) return resolve(done({ err: 'none' }));
+
+          let fin = false, finalAlts = [], interimAlts = [], settle = null, r = null;
+          const end = v => {
+            if (fin) return;
+            fin = true;
+            clearTimeout(settle);
+            if (STT.web === r) STT.web = null;
+            resolve(done(v));
+          };
+          const all = () => [...new Set([...finalAlts, ...interimAlts])];
+
+          try {
+            r = new SR();
+            STT.web = r;
+            r.lang = loc;
+            r.maxAlternatives = 5;
+            r.interimResults = true;          // short kid words often only show up as interim
+            r.continuous = false;
+
+            r.onstart = ready;
+            r.onresult = e => {
+              for (let i = e.resultIndex; i < e.results.length; i++) {
+                const res = e.results[i];
+                const t = Array.from(res).map(a => (a.transcript || '').trim()).filter(Boolean);
+                if (res.isFinal) finalAlts.push(...t); else if (t.length) interimAlts = t;
+              }
+              if (finalAlts.length) return end({ alts: all() });
+              if (interimAlts.length) {        // engine heard something but is slow to finalise
+                clearTimeout(settle);
+                settle = setTimeout(() => { try { r.stop(); } catch (er) {} end({ alts: all() }); }, 900);
+              }
+            };
+            r.onerror = e => {
+              const code = (e && e.error) || 'err';
+              if ((code === 'no-speech' || code === 'aborted') && (finalAlts.length || interimAlts.length)) return end({ alts: all() });
+              if (code === 'language-not-supported') return end({ err: 'nolang' });  // lets callers fall back to en-US
+              end({ err: code });
+            };
+            r.onend = () => end(finalAlts.length || interimAlts.length ? { alts: all() } : { err: 'no-speech' });
+
+            r.start();
+            sttTimer = setTimeout(() => { try { r.stop(); } catch (e) {} }, 8500);
+          } catch (e) {
+            end({ err: 'start' });
+          }
+        }, 220);
+      });
+    };
+  });
+
+  // ---------- 7. brScore: accept a homophone only when it is the WHOLE answer ----------
+  // (Gemini's version accepted any word inside a longer phrase, e.g. "the hat is red" for "at".)
+  step('brScore', () => {
+    if (!(typeof brScore !== 'undefined') || !(typeof micNorm !== 'undefined')) return;
+    const _origBrScore = brScore;
+    brScore = function (t, alts) {
+      const base = _origBrScore(t, alts);
+      if (base && base.score === 2) return base;
+      const target = micNorm(t).replace(/ /g, '');
+      const accepted = (typeof SAMEAS !== 'undefined' && Array.isArray(SAMEAS[target])) ? SAMEAS[target] : [];
+      for (const a of (alts || [])) {
+        const n = micNorm(a);
+        const toks = n.split(' ').filter(Boolean);
+        if (!toks.length || toks.length > 2) continue;      // ignore long phrases / chatter
+        // allow "at" or "at at" (kids repeat), but never "c a t" (letters must be blended)
+        const w = toks[0];
+        if (toks.length === 2 && toks[1] !== w) continue;
+        if (w === target || accepted.includes(w)) return { score: 2, heard: n, why: '' };
+      }
+      return base;
+    };
+  });
+
+  // ---------- 8. Never delete the 🎤 button when the browser blocks auto-listening ----------
+  const BLOCKED = ['not-allowed', 'start', 'service-not-allowed'];
+
+  step('micGo', () => {
+    if (!(typeof micGo !== 'undefined') || !(typeof micWord !== 'undefined')) return;
+    micGo = async function (kind, btn) {
+      if (!btn || btn.dataset.busy || typeof YL === 'undefined' || !YL) return;
+      const it = YL.items[YL.i];
+      const tok = YL.tok;
+      const lang = YL.L && YL.L.lang === 'fil' ? 'fil' : 'en';
+      const target = kind === 'page' ? it.p[1] : it.w.w;
+      btn.dataset.busy = 1;
+      btn.classList.add('listen');
+      btn.classList.remove('pulse');
+      btn.innerHTML = `👂 ${T('Listening… say it now!', 'Nakikinig… sabihin na!')} <span class="mbars"><i></i><i></i><i></i></span>`;
+      P.yk.mic = P.yk.mic || { n: 0, ok: 0 };
+      P.yk.mic.n++;
+
+      let r = await listen(lang);
+      if (r.err === 'nolang' && lang === 'fil') r = await listen('en');
+      if (!YL || YL.tok !== tok || !btn.isConnected) return;
+      btn.classList.remove('listen', 'hot');
+      delete btn.dataset.busy;
+
+      if (r.err) {
+        YL.cur.mt = (YL.cur.mt || 0) + 1;
+        if (BLOCKED.includes(r.err)) {
+          btn.classList.add('pulse');
+          btn.innerHTML = '🎤 ' + T('Tap here & say it!', 'Pindutin ito at sabihin!');
+          micFb(T('👆 Tap the red 🎤 button, allow the microphone if asked, and speak!', '👆 Pindutin ang pulang 🎤, payagan ang mikropono, at magsalita!'), 'warn');
+          if (YL.cur.mt >= 2 && kind === 'word') micReveal();
+          return;
+        }
+        const m = micErrMsg(r.err);
+        if (kind === 'word' && (m || YL.cur.mt >= 3)) micReveal();
+        if (m) { toast(m); btn.classList.add('pulse'); btn.innerHTML = '🎤 ' + T('Tap to try again', 'Subukan muli'); return; }
+        btn.classList.add('pulse');
+        btn.innerHTML = '🎤 ' + T("I didn't hear you — tap & say it!", 'Hindi kita narinig — pindutin at ulitin!');
+        say(T('Tap the microphone and say it loud!', 'Pindutin ang mikropono at lakasan mo!'), .9);
+        return;
+      }
+      if (kind === 'page') return micPage(btn, target, r.alts, lang);
+      return micWord(kind, btn, target, r.alts, lang);
+    };
+  });
+
+  console.info('[TUDLO] voice fix v6.7.1 (merged into v6.11) loaded');
+})();
+// ================= end of voice fix =================
 // ---------- boot ----------
 load();
 if(STORE.current&&STORE.profiles[STORE.current]){P=STORE.profiles[STORE.current];migrate();P.young?scrYoung():scrKingdom()}else scrTitle();
