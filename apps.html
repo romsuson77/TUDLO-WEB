@@ -22,10 +22,11 @@ body{margin:0;font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;color:#
 <div id="app"></div>
 <script>
 // ===================== EDIT THIS LIST (up to 5 apps) =====================
-// file    = the APK's name exactly as uploaded to the GitHub repo (same folder as this page)
+// file    = the APK's name exactly as uploaded to the GitHub repo (same folder as this page),
+//           OR a full link — APKs over 25 MB go in GitHub Releases: https://github.com/romsuson77/TUDLO-WEB/releases/latest/download/<name>.apk
 // To update an app: upload the new APK with the SAME file name, then change version/date/notes here.
 const APPS = [
-  { icon:'🏰', name:'TUDLO', file:'tudlo.apk', version:'2.0', date:'2026-11-25', channel:'beta',
+  { icon:'🏰', name:'TUDLO', file:'https://github.com/romsuson77/TUDLO-WEB/releases/latest/download/tudlo.apk', version:'2.0', date:'2026-11-25', channel:'beta',
     notes:'🧠 Offline voice: records and checks reading on the phone, choosing from the expected answers — much better for short sounds (am, at, ba). Downloads its 40 MB voice pack once on Wi-Fi. Mic level meter included.' },
   // { icon:'👨‍👩‍👧', name:'TUDLO Parent', file:'tudlo-parent.apk', version:'1.0', date:'2026-11-20', channel:'beta', notes:'Parent progress app.' },
   // { icon:'🧪', name:'TUDLO (test build)', file:'tudlo-test.apk', version:'1.1-test', date:'2026-11-21', channel:'test', notes:'For testers only.' },
@@ -47,10 +48,10 @@ function render(){
    <li><b>Updating:</b> download the newer APK and install it over the old one — progress is kept. (Only works if both were built on the same PC/keystore.)</li></ol>
    <p class="muted">These are test builds shared directly, not from Google Play.</p></div>`;
   // file sizes
-  APPS.slice(0,5).forEach((a,i)=>fetch(a.file,{method:'HEAD'}).then(r=>{const el=document.getElementById('sz'+i);if(!r.ok){el.textContent='⚠️ not uploaded yet';return}const n=+r.headers.get('content-length');el.textContent=n?(n/1048576).toFixed(1)+' MB':'ready'}).catch(()=>{}));
+  APPS.slice(0,5).forEach((a,i)=>/^https?:/.test(a.file)?(document.getElementById('sz'+i).textContent='📦 from GitHub Releases'):fetch(a.file,{method:'HEAD'}).then(r=>{const el=document.getElementById('sz'+i);if(!r.ok){el.textContent='⚠️ not uploaded yet';return}const n=+r.headers.get('content-length');el.textContent=n?(n/1048576).toFixed(1)+' MB':'ready'}).catch(()=>{}));
   // QR codes
   const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js';
-  s.onload=()=>APPS.slice(0,5).forEach((a,i)=>{try{const q=qrcode(0,'M');q.addData(base+a.file);q.make();document.getElementById('qr'+i).innerHTML=q.createImgTag(3,6)+'Scan to download'}catch(e){}});
+  s.onload=()=>APPS.slice(0,5).forEach((a,i)=>{try{const q=qrcode(0,'M');q.addData(/^https?:/.test(a.file)?a.file:base+a.file);q.make();document.getElementById('qr'+i).innerHTML=q.createImgTag(3,6)+'Scan to download'}catch(e){}});
   s.onerror=()=>APPS.forEach((a,i)=>{const e=document.getElementById('qr'+i);if(e)e.innerHTML='<small>QR needs internet</small>'});
   document.head.appendChild(s);
 }
