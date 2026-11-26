@@ -1039,7 +1039,7 @@ function scrTitle(){P=null;const profs=Object.entries(STORE.profiles);
    <div class="crests">${CRESTS.map(c=>`<button class="${c===newCrest?'on':''}" onclick="newCrest='${c}';document.querySelectorAll('.crests button').forEach(b=>b.classList.toggle('on',b.textContent==='${c}'))">${c}</button>`).join('')}</div>
    <div class="center" style="margin-top:14px"><button class="btn" onclick="createProfile()">🏰 Found my Kingdom</button></div>
    ${MEMONLY?'<p class="muted center">Note: this browser is not allowing saving, so progress lasts only while this page is open.</p>':''}
-  </div><p class="center acr">Kinder to Grade 6 · all MATATAG subjects · Grade 6 & First Year High School Pre-Algebra</p><p class="center" style="color:#9fb0d8;font-size:12px;margin:2px 0 0">TUDLO v6.11 · 25 Nov 2026 · ✏️ Spell & Read · 🎤 Say it!</p>`)}
+  </div><p class="center acr">Kinder to Grade 6 · all MATATAG subjects · Grade 6 & First Year High School Pre-Algebra</p><p class="center" style="color:#9fb0d8;font-size:12px;margin:2px 0 0">TUDLO v7.0 · 25 Nov 2026 · 🧠 Offline voice · 🎤 Say it!</p>`)}
 function createProfile(){const n=($('#pname').value||'').trim();if(!n){$('#pname').focus();toast('✍️ Type your name first, Commander!');return}
   const id='p'+Date.now();STORE.profiles[id]=newProfile(n,newCrest);STORE.current=id;P=STORE.profiles[id];if(newMode!=='g6'){P.young=true;P.yk.grade=newMode==='k1'?1:newGrade;P.intro=true;P.assess={done:true,skipped:true,res:{}};save();scrYoung();return}save();scrKingdom()}
 function pickProfile(id){STORE.current=id;P=STORE.profiles[id];migrate();save();P.young?scrYoung():scrKingdom()}
@@ -1722,7 +1722,7 @@ const PRAISE=['Great reading!','Super!','You got it!','Awesome!','Wow, well done
 const norm=s=>String(s).toLowerCase().replace(/[^a-z]/g,'');
 
 // --- HUB ---
-function ytop(){return `<div class="top"><div class="who" onclick="go('young')"><span style="font-size:24px">${P.crest}</span><span>${esc(P.name)}</span></div><span class="res">💂 ${P.yk.warriors}</span><span class="res">🪙 ${Math.floor(P.res.gold)}</span><button class="btn sec sm" onclick="yVoice()" title="Voice">${P.settings.voice!==false?'🔊':'🔇'}</button><button class="btn sec sm" onclick="micToggle()" title="Say it! (microphone) — for parents">${micOn()?'🎤':'🎤<small style="font-size:10px">off</small>'}</button></div>`}
+function ytop(){return `<div class="top"><div class="who" onclick="go('young')"><span style="font-size:24px">${P.crest}</span><span>${esc(P.name)}</span></div><span class="res">💂 ${P.yk.warriors}</span><span class="res">🪙 ${Math.floor(P.res.gold)}</span><button class="btn sec sm" onclick="yVoice()" title="Voice">${P.settings.voice!==false?'🔊':'🔇'}</button></div>`}
 function yNode(L,list){const i=list.indexOf(L);const open=yOpen(list,i);const st=P.yk.st[L.id]||{};const next=open&&!st.done;
   const b=P.yk.bt[L.id]||{};const foe=foeOf(L.id);
   return `<div class="nwrap"><button class="knode ${open?'':'locked'} ${L.boss?'boss':''} ${next?'next':''}" onclick="${open?`startLevel('${L.id}')`:`toast('🔒 Finish the level before this one first!')`}"><span class="ic">${open?L.e:'🔒'}</span><span style="flex:1;text-align:left">${L.name}<small>${L.sub}</small></span><span class="stars">${st.done?stars(st.stars):next?'▶':''}</span></button>
@@ -1747,7 +1747,7 @@ function scrYoung(){YL=null;if(typeof BT!=='undefined'&&BT){btStop();BT=null}try
   <div class="card" style="margin-top:0;border-top-left-radius:0;border-top-right-radius:0"><h2 style="margin-top:0">${tab.e} ${tab.full}</h2>${tab.k==='fil'?`<p class="muted" style="margin-top:-6px">Filipino / Tagalog words, syllables and stories — with 🌴 Bisaya and 🇬🇧 English help for kids who speak Bisaya at home.</p><button class="btn sec sm" onclick="yGloss()">🌴 Translations: ${glossOn()?'shown':'tap to show'}</button>${hasFilVoice()?'':`<p class="muted" style="margin:8px 0 0">🔊 Tip: for a clearer Tagalog voice, install the <b>Filipino</b> voice on this device (Android: Settings → Accessibility or General management → Text-to-speech → Google → Install voice data → Filipino).</p>`}`:''}${tab.k==='g2'?'<p class="muted" style="margin-top:-6px">A sneak peek at Grade 2 (MATATAG Grade 2 learning areas: Filipino, English, Mathematics, GMRC and Makabansa). Try it when Grade 1 feels easy!</p>':''}${tab.k==='biz'?'<p class="muted" style="margin-top:-6px">Learn step by step: read a scale → grams → pay for what you weigh → give change → plan a little business. Prices are sample prices for practice.</p>':''}${tab.k==='mak'?'<p class="muted" style="margin-top:-6px">In the MATATAG Grade 1 curriculum, Music, Arts, PE, Health and community lessons are part of Makabansa.</p>':''}
    ${tab.lands.map(l=>{const ls=tab.list.filter(x=>x.land===l.k);return ls.length?`<div class="land" style="background:${l.bg}"><h3 style="margin:0">${l.e} ${l.name}</h3><small class="muted">${l.sub}</small>${ls.map(x=>yNode(x,tab.list)).join('')}</div>`:''}).join('')}
    <p class="muted center" style="margin:6px 0 0">⚔️ Finish a level to unlock its <b>Attack</b> and <b>Defend</b> battles!</p></div>
-  <div class="center" style="margin-top:12px"><button class="btn sec sm" onclick="yIntro()">📖 Story</button> <button class="btn sm" onclick="go('send')">📲 Send progress to parent</button> <button class="btn sec sm" onclick="go('report')">👨‍👩‍👧 For grown-ups</button> ${P.young?`<button class="btn sec sm" onclick="go('title')">👥 Switch player</button>`:`<button class="btn sec sm" onclick="P.young=false;scrKingdom()">◀ Back to my Kingdom</button>`}</div></div>`);
+  <div class="center" style="margin-top:12px"><button class="btn sec sm" onclick="yIntro()">📖 Story</button> <button class="btn sm" onclick="go('send')">📲 Send progress to parent</button> <button class="btn sec sm" onclick="grownGate(grownSettings)">⚙️ For grown-ups</button> ${P.young?`<button class="btn sec sm" onclick="go('title')">👥 Switch player</button>`:`<button class="btn sec sm" onclick="P.young=false;scrKingdom()">◀ Back to my Kingdom</button>`}</div></div>`);
   if(!P.yk.intro){P.yk.intro=true;save();setTimeout(yIntro,250)}}
 function yIntro(){modal(`<div class="kid center"><div style="font-size:70px">🐉📜</div><h2>The Little Knights</h2><div class="lesson" style="text-align:left;font-size:18px"><p>Oh no! The <b>Word Dragon</b> 🐉 mixed up all the letters in the kingdom!</p><p>You can fix it, <b>${esc(P.name)}</b>! Push the letters together to read words. <b>Every word you read brings a new warrior 💂 to your castle.</b></p><p>Learn <b>📖 Reading</b>, <b>🇵🇭 Tagalog</b>, <b>🔢 Math</b>, <b>🎨 Makabansa</b> (music, arts, health and our country) and <b>💛 GMRC</b>.</p><p>Finish a level and you can <b>⚔️ attack</b> an enemy kingdom or <b>🛡️ defend</b> your castle!</p><p>Read lots, and your little hut 🛖 will grow into a great castle 🏯!</p></div><br><button class="btn" onclick="closeModal()">⚔️ Let's go!</button></div>`);say(`Oh no! The Word Dragon mixed up all the letters in the kingdom. You can fix it! Every word you read brings a new warrior to your castle. Let's go!`)}
 
@@ -1863,8 +1863,8 @@ function renderMathQ(){const it=YL.items[YL.i];if(!it){endLesson();return}if(!it
   setTimeout(()=>say(q.say,null,null,q.lang).then(()=>{if(q.auto&&YL&&YL.items[YL.i]&&YL.items[YL.i].q===q)q.auto()}),250)}
 function yMath(j,btn){const C=YL.cur;if(C.done)return;const it=YL.items[YL.i],q=it.q;
   if(q.ch[j].v===q.a){btn.classList.add('good');C.done=true;if(YL.L.quest)srResult(it.src,it.tries===0);else if(it.tries>0)srMiss(it.src);const n=it.tries===0?(YL.L.boss?3:2):1;P.yk.math++;const pr=praise();
-    $('#chk').innerHTML=yWin(n,`<div style="font-size:22px;font-weight:900">🎉 ${pr}</div>`);
-    if(it.tries===0){say(pr);setTimeout(()=>{if(YL&&YL.items[YL.i]===it)yNext()},1300)}else{$('#chk').innerHTML+=`<div class="center"><button class="btn green" onclick="yNext()">Next ▶</button></div>`;say(pr+' '+stripTags(q.why),null,null,q.lang)}return}
+    $('#chk').innerHTML=yWin(n,`<div style="font-size:22px;font-weight:900">🎉 ${pr}</div>${q.okSay?`<div style="font-size:24px;font-weight:900;color:#1d6b3a;margin-top:4px">${q.okSay}</div>`:''}`);
+    if(it.tries===0){if(q.okSay){say(pr+' '+stripTags(q.okSay).replace(/\p{Extended_Pictographic}/gu,'').replace(/—/g,','),.9,null,q.lang).then(()=>setTimeout(()=>{if(YL&&YL.items[YL.i]===it)yNext()},700))}else{say(pr);setTimeout(()=>{if(YL&&YL.items[YL.i]===it)yNext()},1300)}}else{$('#chk').innerHTML+=`<div class="center"><button class="btn green" onclick="yNext()">Next ▶</button></div>`;say(pr+' '+stripTags(q.why),null,null,q.lang)}return}
   btn.classList.add('bad');btn.disabled=true;it.tries++;SFX.miss();
   if(it.tries===1&&q.ch.length>2){$('#help').innerHTML=`<div class="lesson" style="margin-top:12px"><b>💡 Let's look again!</b>${q.help.html}</div>`;say(q.help.say,.85,null,q.lang)}
   else{document.querySelectorAll('.kch .kbtn').forEach((b,k)=>{if(q.ch[k].v===q.a)b.classList.add('good','glow')});C.done=true;it.ok=false;if(YL.L.quest)srResult(it.src,false);else srMiss(it.src);
@@ -1961,7 +1961,7 @@ function clockSVG(h,m){const ha=((h%12)+m/60)*30,ma=m*6;const hand=(a,l,w,c)=>{c
 function mqTime(i){const h=R(1,12),m=i>=4&&Math.random()<.5?30:0;const nm=(H,M)=>M?`half past ${H}`:`${H} o'clock`;const dg=(H,M)=>`${H}:${M?'30':'00'}`;const h2=h%12+1,h0=(h+10)%12+1;
   const opts=[[h,m],m?[h2,0]:[h,30],m?[h,0]:[h0,0]];if(i<4)opts[1]=[h2,m];
   return{html:`<div class="kq">What time is it?</div>${clockSVG(h,m)}`,say:'What time does the clock show?',ch:shuffle(opts.map(([H,M])=>({h:`<span class="kword">${dg(H,M)}</span><small>${nm(H,M)}</small>`,v:dg(H,M)}))),a:dg(h,m),
-    help:{html:'<p class="ktip">💡 The short <b style="color:#d64541">red</b> hand shows the hour. The long <b style="color:#3d7be8">blue</b> hand on 12 means o\'clock. On 6 means half past.</p>',say:'The short red hand shows the hour. The long blue hand on twelve means o clock. On six means half past.'},why:`It is ${nm(h,m)}.`}}
+    help:{html:'<p class="ktip">💡 The short <b style="color:#d64541">red</b> hand shows the hour. The long <b style="color:#3d7be8">blue</b> hand on 12 means o\'clock. On 6 means half past.</p>',say:'The short red hand shows the hour. The long blue hand on twelve means o clock. On six means half past.'},why:`It is ${nm(h,m)}.`,okSay:`🕐 It is ${nm(h,m)}.`}}
 const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
 function mqDays(i){const r=Math.random();if(r<.15){const mo=i>=5&&Math.random()<.5;const a=mo?12:7;return{html:`<div class="kq">How many ${mo?'months are in a year':'days are in a week'}?</div>`,say:`How many ${mo?'months are in a year':'days are in a week'}?`,ch:numCh(a,1,14),a,help:{html:`<p class="ktip">💡 Sing the ${mo?'months':'days'}: ${(mo?MONTHS:DAYS).join(', ')}.</p>`,say:(mo?MONTHS:DAYS).join(', ')},why:`There are ${a}.`}}
   const L=i>=5&&Math.random()<.5?MONTHS:DAYS;const k=R(0,L.length-1);const after=Math.random()<.6;const a=L[(k+(after?1:-1)+L.length)%L.length];const o=new Set([a]);while(o.size<3)o.add(pick(L));
@@ -2690,6 +2690,39 @@ function micAgree(ans){const v=+(document.getElementById('micpin')||{}).value;if
 .chip.said{background:#c8f7d4!important;border-color:#2ecc71!important}
 .chip.miss{background:#ffe1c2!important;border-color:#e67e22!important;color:#a04000}
 `;document.head.appendChild(s)})();
+// ---------- 🎤 mic level meter + "did the mic hear anything?" check ----------
+// Android app: real level from SpeechRecognizer (onRmsChanged, dB ≈ -2 silence … 10 loud).
+// Browsers (not Android Chrome): level from a Web Audio analyser while listening. Android Chrome: speech start/stop only.
+STT.peak=0;STT.levelSeen=false;STT.speech=false;
+function micMeterReset(){STT.peak=0;STT.levelSeen=false;STT.speech=false;const m=document.getElementById('micmeter');if(m)m.remove()}
+function micMeterEl(){let m=document.getElementById('micmeter');if(m)return m;const b=document.querySelector('.micbtn.listen')||document.querySelector('#brmic')||document.querySelector('.micbtn');if(!b)return null;
+  m=document.createElement('div');m.id='micmeter';m.className='micmeter';m.innerHTML=`<span class="mmic">🎤</span><span class="mbarz">${'<i></i>'.repeat(12)}</span><span class="mlab">waiting…</span>`;
+  (b.parentElement||document.body).insertAdjacentElement('afterend',m);return m}
+function micLevel(l){l=Math.max(0,Math.min(1,l));STT.levelSeen=true;if(l>STT.peak)STT.peak=l;const m=micMeterEl();if(!m)return;
+  const n=Math.round(l*12);m.querySelectorAll('.mbarz i').forEach((x,j)=>{x.className=j<n?(j<5?'g':j<9?'y':'r'):''});
+  const lab=m.querySelector('.mlab');if(lab)lab.textContent=l>0.33?'🔊 I hear you!':l>0.12?'a little louder…':'quiet…'}
+window.__sttLevel=(id,v,is01)=>{micLevel(is01?v:(v+2)/12)};
+window.__sttSpeech=id=>{STT.speech=true;const m=micMeterEl();if(m){const lab=m.querySelector('.mlab');if(lab)lab.textContent='🔊 I hear you!'}};
+{const _rdy=window.__sttReady;window.__sttReady=id=>{try{_rdy&&_rdy(id)}catch(e){}const m=micMeterEl();if(m){const lab=m.querySelector('.mlab');if(lab)lab.textContent='🎤 speak now'}}}
+// what to tell the child when no word came back
+function micDiag(err,word){const heard=err==='nomatch'||STT.speech||STT.peak>0.3;
+  if(heard)return{kind:'unclear',txt:`🎤 I heard your voice, but not the word clearly. Say it slowly and clearly${word?': <b>'+esc(word)+'</b>':''}.`,say:`I heard you, but not clearly. Say it slowly.${word?' '+word+'.':''}`};
+  if(STT.levelSeen&&STT.peak<0.15)return{kind:'silent',txt:'🎤 The microphone heard almost nothing. Hold the phone closer and say it loud! (Check that nothing covers the mic.)',say:'I can not hear you. Hold the phone closer and say it loud!'};
+  return{kind:'none',txt:'🎤 I did not hear you. Say it loud!',say:'I did not hear you. Say it loud!'}}
+// browser level meter (skipped on Android Chrome, where a second mic user can stop speech recognition)
+const MicWeb={st:null,ctx:null,raf:0};
+async function micWebMeterStart(){if(window.AndroidSTT||/Android/i.test(navigator.userAgent)||!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return;
+  try{micWebMeterStop();const st=await navigator.mediaDevices.getUserMedia({audio:true});MicWeb.st=st;const ctx=new (window.AudioContext||window.webkitAudioContext)();MicWeb.ctx=ctx;
+    const src=ctx.createMediaStreamSource(st),an=ctx.createAnalyser();an.fftSize=1024;src.connect(an);const buf=new Float32Array(an.fftSize);
+    const tick=()=>{an.getFloatTimeDomainData(buf);let s=0;for(const x of buf)s+=x*x;const rms=Math.sqrt(s/buf.length);micLevel(Math.min(1,rms*9));MicWeb.raf=requestAnimationFrame(tick)};tick()}catch(e){}}
+function micWebMeterStop(){try{cancelAnimationFrame(MicWeb.raf)}catch(e){}try{MicWeb.st&&MicWeb.st.getTracks().forEach(t=>t.stop())}catch(e){}try{MicWeb.ctx&&MicWeb.ctx.close()}catch(e){}MicWeb.st=MicWeb.ctx=null}
+(function(){const s=document.createElement('style');s.textContent=`
+.micmeter{display:flex;align-items:center;justify-content:center;gap:8px;margin:8px auto 0;padding:6px 10px;background:#1b2a52;border-radius:12px;max-width:340px;color:#fff;font-weight:800;font-size:14px}
+.micmeter .mbarz{display:inline-flex;gap:3px;align-items:flex-end;height:22px}
+.micmeter .mbarz i{width:7px;border-radius:2px;background:#3b4d82;height:22px;opacity:.5}
+.micmeter .mbarz i.g{background:#2ecc71;opacity:1}.micmeter .mbarz i.y{background:#f1c40f;opacity:1}.micmeter .mbarz i.r{background:#e74c3c;opacity:1}
+.micmeter .mlab{min-width:96px;text-align:left}
+`;document.head.appendChild(s)})();
 // ================= GRADE FIT (MATATAG): move lessons that are above Grade 1 into the grade where they belong =================
 // Grade 1 (MATATAG): Language, Reading & Literacy, Mathematics, Makabansa, GMRC. Science starts in Grade 3; English & Filipino subjects start in Grade 2.
 // G1 math: numbers to 100, + and − to 100 WITHOUT regrouping, money to ₱100, ½ and ¼, time (hour, half, quarter), non-standard measuring.
@@ -2743,14 +2776,15 @@ function yFocus(){return yK1()&&Array.isArray(P.yk.focus)&&P.yk.focus.length?P.y
 function isFocus(k){return yFocus().includes(k)}
 // subject tabs: focus subjects first (with ⭐); others hidden if the parent chose "only focus"
 function yTabs(){const f=yFocus();if(!f.length)return ROADS.slice();const a=f.map(k=>ROADS.find(r=>r.k===k)).filter(Boolean);return P.yk.focusOnly?a:a.concat(ROADS.filter(r=>!f.includes(r.k)))}
-function focusBar(){if(!yK1())return'';const f=yFocus();
-  if(!f.length&&!P.yk.focusSet)return`<div class="card" style="display:flex;gap:10px;align-items:center;padding:12px;background:#fff7d6"><span style="font-size:34px">🎯</span><div style="flex:1"><b>Grown-ups:</b> choose which subjects your child should focus on.<br><small class="muted">Focus subjects come first and fill most of Today's Quest.</small></div><button class="btn sm" onclick="focusGate()">Choose</button></div>`;
-  return`<div class="center" style="margin:8px 0 6px"><span class="pill" style="background:#fff7d6">🎯 Focus: ${f.length?f.map(k=>{const r=ROADS.find(x=>x.k===k);return r?r.e+' '+r.name:''}).join(' · '):'All subjects'}${P.yk.focusOnly&&f.length?' · 🔒 locked by a grown-up':''}</span> <button class="btn sec sm" onclick="focusGate()">Change</button></div>`}
+function focusBar(){if(!yK1())return'';const f=yFocus();if(!f.length)return'';
+  return`<div class="center" style="margin:8px 0 6px"><span class="pill" style="background:#fff7d6">${P.yk.focusOnly?'🔒':'🎯'} ${f.map(k=>{const r=ROADS.find(x=>x.k===k);return r?r.e+' '+r.name:''}).join(' · ')}${P.yk.focusOnly?' · locked by a grown-up':''}</span></div>`}
 // Today's Quest: questions come from focus subjects (reviews of anything already learned still appear)
 function yFocusPool(pool,done,open){const f=yFocus();if(!f.length)return pool;const inF=L=>LVM[L.id]&&f.includes(LVM[L.id].road.k);
   let a=done.filter(inF);if(a.length<4)a=a.concat(open.filter(inF));return a.length?a:pool}
 // parent gate → picker
-function focusGate(){const a=3+Math.floor(Math.random()*7),b=6+Math.floor(Math.random()*4);
+function focusGate(){return grownGate(grownSettings);
+}
+function focusGateOld(){const a=3+Math.floor(Math.random()*7),b=6+Math.floor(Math.random()*4);
   modal(`<div class="kid"><h2>🎯 Focus subjects — for grown-ups</h2><p><b>Grown-ups only:</b> what is ${a} × ${b}?</p>
    <input id="fpin" inputmode="numeric" style="font-size:22px;width:120px;padding:6px;border-radius:10px;border:2px solid #ccc">
    <div class="row" style="margin-top:12px"><button class="btn green" onclick="focusPick(${a*b})">Next ▶</button><button class="btn sec" onclick="closeModal()">Cancel</button></div></div>`)}
@@ -2770,6 +2804,22 @@ function yLocked(){return yK1()&&!!P.yk.focusOnly&&yFocus().length>0}
 function yLockedOut(id){if(!yLocked())return false;const e=LVM[id];return !!(e&&e.road&&!isFocus(e.road.k))}
 {const _pg=pickGrade;pickGrade=function(g){if(yLocked()&&g!==1){toast('🔒 Locked by a grown-up — only '+yFocus().map(k=>{const r=ROADS.find(x=>x.k===k);return r?r.name:k}).join(', ')+' for now');return}return _pg.apply(this,arguments)}}
 {const _sl2=startLevel;startLevel=function(id){if(yLockedOut(id)){toast('🔒 This subject is locked by a grown-up');return}return _sl2.apply(this,arguments)}}
+
+// ---------- 👨‍👩‍👧 Grown-ups settings (behind the grown-up question) ----------
+function grownGate(next){const a=3+Math.floor(Math.random()*7),b=6+Math.floor(Math.random()*4);window.__gNext=next;
+  modal(`<div class="kid"><h2>👨‍👩‍👧 For grown-ups</h2><p><b>Grown-ups only:</b> what is ${a} × ${b}?</p>
+   <input id="gpin" inputmode="numeric" style="font-size:22px;width:120px;padding:6px;border-radius:10px;border:2px solid #ccc" onkeydown="if(event.key==='Enter')grownOk(${a*b})">
+   <div class="row" style="margin-top:12px"><button class="btn green" onclick="grownOk(${a*b})">Open ▶</button><button class="btn sec" onclick="closeModal()">Cancel</button></div></div>`);
+  setTimeout(()=>{const x=document.getElementById('gpin');if(x)x.focus()},200)}
+function grownOk(ans){if(+(document.getElementById('gpin')||{}).value!==ans){toast('That answer is not right — ask a grown-up 🙂');return}const n=window.__gNext;window.__gNext=null;closeModal();if(n)n()}
+function grownSettings(){const f=yFocus();const subj=yK1()?(f.length?f.map(k=>{const r=ROADS.find(x=>x.k===k);return r?r.e+' '+r.name:''}).join(', '):'All subjects'):'';
+  const row=(ic,t,sub,btn)=>`<div style="display:flex;gap:10px;align-items:center;background:#fff;border-radius:14px;padding:10px;margin:8px 0;border:2px solid #eadfc8"><span style="font-size:30px">${ic}</span><div style="flex:1"><b>${t}</b><br><small class="muted">${sub}</small></div>${btn}</div>`;
+  modal(`<div class="kid"><h2>⚙️ Settings for grown-ups</h2><p class="muted" style="margin-top:-4px">For <b>${esc(P.name)}</b></p>
+   ${yK1()?row(P.yk.focusOnly&&f.length?'🔒':'🎯','Subjects & lock',P.yk.focusOnly&&f.length?'Locked to: '+subj:'Now: '+subj+' · not locked',`<button class="btn sm" onclick="focusPick(null)">Change</button>`):''}
+   ${row('🎤','Listening (reading out loud)',micOn()?(micAvail()?'On — TUDLO listens and checks reading':'On, but this device cannot listen'):'Off — reading lessons just read along',`<button class="btn sm ${micOn()?'sec':''}" onclick="micToggle();grownSettings()">${micOn()?'Turn off':'Turn on'}</button>`)}
+   ${row('📜','Progress report','Topics, minutes, what needs help',`<button class="btn sm" onclick="closeModal();go('report')">Open</button>`)}
+   ${row('📲','Send progress to the parent app','Code or QR for TUDLO Parent',`<button class="btn sm" onclick="closeModal();go('send')">Open</button>`)}
+   <div class="row" style="margin-top:12px"><button class="btn green" onclick="closeModal()">✔ Done</button></div></div>`)}
 // ================= 🌉 SOUND BRIDGE v2 — read out loud: sounds → words → sentences (Kinder & Grade 1 Reading) =================
 // Stage 1 vowel-first (at, en, ip) · Stage 2 vowel-last (ba be bi bo bu) · Stage 3 3-letter words (b + at) · Stage 4 sentences of 2–3 letter words.
 // Every lesson = 30 items: "Remember?" from earlier lessons → learn with TUDLO → read on your own → mixed practice.
@@ -2927,12 +2977,15 @@ function brNoMic(){const b=$('#brbtns');if(!b)return;const it=YL.items[YL.i];con
     const bb=$('#brbtns');if(bb)bb.innerHTML=`<button class="btn blue" onclick="brModel(true)">🔊 Listen</button><button class="btn green" onclick="yNext()">Next ▶</button>`})()}
 async function brListen(btn){if(!YL||btn.dataset.busy)return;const it=YL.items[YL.i],tok=YL.tok,k=it.kind;btn.dataset.busy=1;btn.classList.add('listen');btn.classList.remove('pulse');
   btn.innerHTML=`👂 Listening… say it now! <span class="mbars"><i></i><i></i><i></i></span>`;P.yk.mic=P.yk.mic||{n:0,ok:0};P.yk.mic.n++;
-  let r=await listen(it.lang);if(r.err==='nolang'&&it.lang==='fil')r=await listen('en');
+  const vl=vkList(it.t,it.kind);let r=await listen(it.lang,vl);
+  if((r.err==='nolang'||r.err==='network')&&it.lang==='fil'&&voskReady()){btn.innerHTML='🎤 Say it once more!';await say(it.kind==='sent'?'Read it once more!':'Say it once more!',.9);if(!YL||YL.tok!==tok)return;btn.innerHTML=`👂 Listening… say it now! <span class="mbars"><i></i><i></i><i></i></span>`;r=await listen('en',vl)}
+  else if(r.err==='nolang'&&it.lang==='fil')r=await listen('en',vl);
   if(!YL||YL.tok!==tok||!btn.isConnected)return;delete btn.dataset.busy;btn.classList.remove('listen');
   if(r.err){if(['not-allowed','start','service-not-allowed'].includes(r.err)){it.blk=(it.blk||0)+1;if(it.blk>=3){brNoMic();return}
       btn.innerHTML='🎤 Tap here & say it!';btn.classList.add('pulse');micFb('👆 Tap the red 🎤 button (and press Allow if the phone asks for the microphone)!','warn');return}
     const m=micErrMsg(r.err);if(m){toast(m);brNoMic();return}it.quiet=(it.quiet||0)+1;
-    if(it.quiet<=2){btn.innerHTML='🎤 Get ready…';await say('I did not hear you. Say it loud!',.9);if(YL&&YL.tok===tok)brAutoListen();return}
+    const dg=micDiag(r.err,it.kind==='sent'?'':it.t);micFb(dg.txt,'warn');
+    if(it.quiet<=2){btn.innerHTML='🎤 Get ready…';await say(dg.say,.9);if(dg.kind==='unclear'&&YL&&YL.tok===tok){await sleep(250);await say(it.kind==='sent'?it.t:brSayWhole(it.t),.6,null,it.kind==='sent'?it.lang:undefined)}if(YL&&YL.tok===tok)brAutoListen();return}
     btn.innerHTML='🎤 Tap me and say it!';btn.classList.add('pulse');say('Tap the microphone when you are ready.',.9);return}
   const s=k==='sent'?brSentScore(it.t,r.alts,it.lang):brPlain(k)?brWordScore(it.t,r.alts):brScore(it.t,r.alts);
   if(k==='sent')(s.hit||[]).forEach((h,j)=>{const el=$('#brw'+j);if(el){el.classList.remove('miss','said');el.classList.add(h?'said':'miss')}});
@@ -3169,6 +3222,48 @@ async function spDone(){const it=YL.items[YL.i];it.spelled=true;if(it.miss>0)it.
 .sptile.used{visibility:hidden}.sptile.lift{opacity:.35}.sptile.shake{animation:spbad .45s}
 .sptile.ghost{position:fixed;z-index:9999;pointer-events:none;opacity:.95;transform:scale(1.12)}
 `;document.head.appendChild(s)})();
+// ================= 🧠 OFFLINE VOICE (TUDLO app 2.0) — record on the phone, pick from the expected answers =================
+// The Android app 2.0 has an offline recogniser (Vosk). The game sends it a SHORT LIST: the right answer + look-alikes
+// (for "am": am · at · an · ad · um · em …). Picking from a short list works far better for short sounds than free speech.
+// English lessons use it first; Tagalog lessons use Google (fil-PH) and fall back to it when there is no internet.
+function voskState(){try{return window.AndroidSTT&&AndroidSTT.voskState?String(AndroidSTT.voskState()):'na'}catch(e){return 'na'}}
+function voskReady(){return voskState()==='ready'}
+// how each 2-letter sound is spelled as real English words the offline model knows
+const VK_VC={at:['at'],an:['an'],am:['am'],ad:['add','ad'],ap:['app'],as:['as'],ed:['ed'],en:['en'],et:['et'],eg:['egg'],em:['em'],
+  it:['it'],in:['in'],ip:['ip'],ig:['ig'],id:['id'],is:['is'],on:['on'],ot:['ot'],op:['op'],og:['og'],ox:['ox'],
+  up:['up'],un:['un'],ug:['ugh'],ut:['ut'],ud:['ud'],us:['us'],um:['um'],im:['im'],om:['om'],ab:['ab'],ag:['ag'],ax:['ax'],ex:['ex'],ix:['ix'],ib:['ib']};
+const VK_CV={ba:['bah','ba'],be:['bay'],bi:['bee'],bo:['bo','bow'],bu:['boo'],ma:['ma','mah'],me:['may'],mi:['me'],mo:['mo','mow'],mu:['moo'],
+  sa:['sah'],se:['say'],si:['see','sea'],so:['so','sew'],su:['sue'],ta:['tah'],te:['tay'],ti:['tea','tee'],to:['toe','tow'],tu:['too','two'],
+  la:['la','lah'],le:['lay'],li:['lee'],lo:['low','lo'],lu:['loo','lou'],pa:['pa','pah'],pe:['pay'],pi:['pee'],po:['po','poe'],pu:['poo'],
+  ka:['ka','kah'],ke:['kay'],ki:['key'],ko:['co','koh'],ku:['coo','koo']};
+const vkPx=s=>VK_VC[s]||VK_CV[s]||[s];
+const VK_V='aeiou',VK_ON='bcdfhmprst';
+// the short list for one item: {words:[…sent to the recogniser], rev:{spoken word → answer}}
+function vkList(target,kind){const T=String(target).toLowerCase().replace(/[.!?,]/g,'').trim();const words=new Set(),rev={};
+  const add=(ans,extra)=>{for(const p of (extra||vkPx(ans))){words.add(p);if(!(p in rev))rev[p]=ans}};
+  const k=kind||brKind(T);
+  if(k==='vc'){add(T);for(const v of VK_V)if(v!==T[0])add(v+T[1]);for(const c of 'tnmdps')if(c!==T[1])add(T[0]+c)}
+  else if(k==='cv'){add(T);for(const v of VK_V)if(v!==T[1])add(T[0]+v);for(const c of 'bmstlpk')if(c!==T[0])add(c+T[1])}
+  else if(k==='numw'||NW_VAL&&(T in NW_VAL)){add(T,[T]);[...NW_ONES.slice(1),...Object.values(NW_TENS)].forEach(w=>add(w,[w]))}
+  else if(k==='sent'||/ /.test(T)){T.split(' ').forEach(w=>add(w,[w]));['a','the','is','it','in','on','i','to'].forEach(w=>add(w,[w]))}
+  else{add(T,[T]);if(T.length===3){for(const v of VK_V)if(v!==T[1])add(T[0]+v+T[2],[T[0]+v+T[2]]);for(const c of VK_ON)if(c!==T[0])add(c+T.slice(1),[c+T.slice(1)])}
+    else{for(let i=0;i<T.length;i++)if(VK_V.includes(T[i]))for(const v of VK_V)if(v!==T[i]){const w=T.slice(0,i)+v+T.slice(i+1);add(w,[w])}}}
+  return{words:[...words].slice(0,40),rev}}
+// results from the offline recogniser come back as the spoken spellings ("bee") → turn them into answers ("bi")
+function vkMap(alts,rev){return (alts||[]).map(a=>String(a).toLowerCase().split(/\s+/).map(w=>rev[w]||w).join(' '))}
+
+// results now say where they came from ('vosk' = offline recogniser on the phone)
+window.__sttResult=(id,alts,src)=>{const f=STT.cb[id];if(f){delete STT.cb[id];f({alts:Array.isArray(alts)?alts:[],src:src||'google'})}};
+
+// --- offline model status (download progress etc.) ---
+window.__voskStatus=s=>{const el=document.getElementById('vkrow');if(el)el.innerHTML=vkRowHtml();if(s==='ready'&&!P?.settings?.vkToast){try{P.settings.vkToast=1;save();toast('🧠 Offline voice is ready — TUDLO can now hear short sounds without internet!')}catch(e){}}};
+function vkRowHtml(){const s=voskState();
+  if(s==='na')return`<b>🧠 Offline voice</b><br><small class="muted">${window.AndroidSTT?'Update to TUDLO app 2.0 (tudlo.madyaw.com/apps.html) to get it.':'Only in the TUDLO Android app.'}</small>`;
+  const t=s==='ready'?'✅ Ready — short sounds are checked on the phone, no internet needed':s.startsWith('downloading')?`⬇️ Downloading… ${s.split(':')[1]||0}%`:s==='loading'?'⏳ Getting ready…':s==='error'?'⚠️ Download failed — try again on Wi-Fi':'Not installed yet (about 40 MB, once, on Wi-Fi)';
+  return`<div style="display:flex;gap:8px;align-items:center"><div style="flex:1"><b>🧠 Offline voice</b><br><small class="muted">${t}</small></div>${s==='none'||s==='error'?`<button class="btn sm" onclick="try{AndroidSTT.voskDownload()}catch(e){};setTimeout(()=>{const r=document.getElementById('vkrow');if(r)r.innerHTML=vkRowHtml()},300)">Download</button>`:''}</div>`}
+{const _gs=grownSettings;grownSettings=function(){_gs.apply(this,arguments);const box=document.querySelector('#mbox .kid');if(!box)return;
+  const d=document.createElement('div');d.id='vkrow';d.style.cssText='background:#fff;border-radius:14px;padding:10px;margin:8px 0;border:2px solid #eadfc8';d.innerHTML=vkRowHtml();
+  const rows=box.querySelectorAll('div[style*="border:2px solid #eadfc8"]');const after=rows[1]||rows[0];if(after)after.insertAdjacentElement('afterend',d);else box.appendChild(d)}}
 // TUDLO grade pack — Grade 2 (MATATAG: Filipino, English, Mathematics, GMRC, Makabansa)
 (function(){
 function compare(i){const a=R(100,999);let b=a+pick([-R(1,9),R(1,9),-R(10,90),R(10,90),-R(100,300),R(100,300)]);b=Math.max(100,Math.min(999,b));if(b===a)b=a+1;
@@ -3177,7 +3272,7 @@ function compare(i){const a=R(100,999);let b=a+pick([-R(1,9),R(1,9),-R(10,90),R(
 function mult(i){const a=pick(i<4?[2,5,10]:[2,3,4,5,10]),b=R(1,10),r=a*b;const o=pick(OBJ);return NQ(`${a} × ${b} = ?`,`${a} times ${b}?`,r,`${a} × ${b} means ${b} groups of ${a}: ${Array.from({length:b},(_,k)=>(k+1)*a).join(', ')}`,`${a} × ${b} = ${r}`,{v:b<=5&&a<=5?`<div class="groups">${Array.from({length:b},()=>`<span class="grpbox">${o[0].repeat(a)}</span>`).join('')}</div>`:'',ch:chN(r,[r+a,r-a,a+b,r+1])})}
 function share(i){const n=pick([2,3,4,5]),each=R(2,i<5?5:10),t=n*each;const[nm,it]=pick([['kids','mangoes'],['friends','candies'],['baskets','eggs'],['plates','cookies']]);return NQ(`${t} ${it} are shared equally by ${n} ${nm}. How many does each get?`,`${t} ${it} shared equally by ${n} ${nm}. How many each?`,each,`Share one at a time, or think: ${n} × ? = ${t}`,`${t} ÷ ${n} = ${each}`,{v:t<=20?`<div class="kobj" style="max-width:420px">${'🥭'.repeat(t)}</div>`:''})}
 function fracSet(i){const d=pick([2,3,4]),k=R(2,i<5?4:6),t=d*k;const nm={2:'½',3:'⅓',4:'¼'}[d];const e=pick(OBJ);return NQ(`What is ${nm} of ${t}?`,`What is one ${d===2?'half':d===3?'third':'fourth'} of ${t}?`,k,`Split ${t} into ${d} equal groups. Count one group.`,`${nm} of ${t} = ${k}`,{v:objs(e[0],t,{wide:true})})}
-function time5(i){const h=R(1,12),m=5*R(0,11);const dg=(H,M)=>`${H}:${String(M).padStart(2,'0')}`;const alts=[dg(h,(m+15)%60),dg(h%12+1,m),dg(h,(m+30)%60),dg(m/5||12,h*5%60)];return{html:`<div class="kq">What time is it?</div>${clockSVG(h,m)}`,say:'What time does the clock show? Count the minutes by fives.',ch:chT(dg(h,m),alts).map(c=>({h:c.h,v:c.v})),a:dg(h,m),help:{html:'<p class="ktip">💡 Short red hand = hour. Long blue hand: count by 5s from the 12 (5, 10, 15…).</p>',say:'The short hand shows the hour. Count the long hand by fives.'},why:`It is ${dg(h,m)}.`}}
+function time5(i){const h=R(1,12),m=5*R(0,11);const dg=(H,M)=>`${H}:${String(M).padStart(2,'0')}`;const alts=[dg(h,(m+15)%60),dg(h%12+1,m),dg(h,(m+30)%60),dg(m/5||12,h*5%60)];return{html:`<div class="kq">What time is it?</div>${clockSVG(h,m)}`,say:'What time does the clock show? Count the minutes by fives.',ch:chT(dg(h,m),alts).map(c=>({h:c.h,v:c.v})),a:dg(h,m),help:{html:'<p class="ktip">💡 Short red hand = hour. Long blue hand: count by 5s from the 12 (5, 10, 15…).</p>',say:'The short hand shows the hour. Count the long hand by fives.'},why:`It is ${dg(h,m)}.`,okSay:`🕐 It is ${dg(h,m)}${m===0?` — ${h} o'clock`:m===30?` — half past ${h}`:''}.`}}
 function bill(v){return v<=20?coinH(v):`<span class="bill b${v}" style="${v===200?'background:linear-gradient(135deg,#2e9d5b,#81c784)':v===500?'background:linear-gradient(135deg,#f2b632,#ffd25e);color:#3a2408':v===1000?'background:linear-gradient(135deg,#1e63d6,#78a6ff)':''}">₱${v}</span>`}
 function money(i){const kinds=i<4?[20,50,100]:[20,50,100,200,500];const cs=Array.from({length:R(2,4)},()=>pick(kinds)).sort((a,b)=>b-a);const s=cs.reduce((a,b)=>a+b,0);return NQ('How much money?','How much money is this? Start with the biggest bill.',s,`Count on: ${(()=>{let r=0;return cs.map(v=>'₱'+(r+=v)).join(', ')})()}`,`The total is ₱${s}.`,{v:`<div class="coins">${cs.map(bill).join('')}</div>`,ch:chN(s,[s+20,s-20,s+50,s+100],'₱')})}
 gradePack(2,[
@@ -3547,7 +3642,8 @@ setTimeout(checkUpdate,2500);document.addEventListener('visibilitychange',()=>{i
     let sttTimer = null, startTimer = null, callNo = 0;
     const ready = () => { try { window.__sttReady && window.__sttReady(); } catch (e) {} };
 
-    listen = function (lang) {
+    listen = function (lang, list) {   // list = {words, rev}: the expected answers (app 2.0 offline recogniser)
+      try { micMeterReset(); } catch (e) {}
       try { (typeof sayStop !== 'undefined') && sayStop(); } catch (e) {}
       try { (typeof micStop !== 'undefined') && micStop(); } catch (e) {}
       clearTimeout(sttTimer); clearTimeout(startTimer);
@@ -3564,8 +3660,8 @@ setTimeout(checkUpdate,2500);document.addEventListener('visibilitychange',()=>{i
           // --- Android APK: native SpeechRecognizer bridge ---
           if (window.AndroidSTT) {
             const id = 's' + (++STT.n);
-            STT.cb[id] = v => resolve(done(v));
-            try { AndroidSTT.listen(loc, id); }
+            STT.cb[id] = v => { if (v && v.alts && v.src === 'vosk' && list) v.alts = vkMap(v.alts, list.rev); resolve(done(v)); };
+            try { if (list && AndroidSTT.listenList) AndroidSTT.listenList(loc, id, JSON.stringify(list.words)); else AndroidSTT.listen(loc, id); }
             catch (e) { delete STT.cb[id]; return resolve(done({ err: 'bridge' })); }
             sttTimer = setTimeout(() => {
               if (STT.cb[id]) {
@@ -3587,6 +3683,7 @@ setTimeout(checkUpdate,2500);document.addEventListener('visibilitychange',()=>{i
             fin = true;
             clearTimeout(settle);
             if (STT.web === r) STT.web = null;
+            try { micWebMeterStop(); } catch (e) {}
             resolve(done(v));
           };
           const all = () => [...new Set([...finalAlts, ...interimAlts])];
@@ -3599,7 +3696,9 @@ setTimeout(checkUpdate,2500);document.addEventListener('visibilitychange',()=>{i
             r.interimResults = true;          // short kid words often only show up as interim
             r.continuous = false;
 
-            r.onstart = ready;
+            r.onstart = () => { ready(); try { micWebMeterStart(); } catch (e) {} };
+            r.onsoundstart = () => { STT.peak = Math.max(STT.peak, 0.2); };
+            r.onspeechstart = () => { try { window.__sttSpeech('web'); } catch (e) {} };
             r.onresult = e => {
               for (let i = e.resultIndex; i < e.results.length; i++) {
                 const res = e.results[i];
@@ -3671,8 +3770,9 @@ setTimeout(checkUpdate,2500);document.addEventListener('visibilitychange',()=>{i
       P.yk.mic = P.yk.mic || { n: 0, ok: 0 };
       P.yk.mic.n++;
 
-      let r = await listen(lang);
-      if (r.err === 'nolang' && lang === 'fil') r = await listen('en');
+      const vl = vkList(kind === 'page' ? target : target, kind === 'page' ? 'sent' : 'word');
+      let r = await listen(lang, vl);
+      if ((r.err === 'nolang' || (r.err === 'network' && voskReady())) && lang === 'fil') r = await listen('en', vl);
       if (!YL || YL.tok !== tok || !btn.isConnected) return;
       btn.classList.remove('listen', 'hot');
       delete btn.dataset.busy;
@@ -3690,8 +3790,9 @@ setTimeout(checkUpdate,2500);document.addEventListener('visibilitychange',()=>{i
         if (kind === 'word' && (m || YL.cur.mt >= 3)) micReveal();
         if (m) { toast(m); btn.classList.add('pulse'); btn.innerHTML = '🎤 ' + T('Tap to try again', 'Subukan muli'); return; }
         btn.classList.add('pulse');
-        btn.innerHTML = '🎤 ' + T("I didn't hear you — tap & say it!", 'Hindi kita narinig — pindutin at ulitin!');
-        say(T('Tap the microphone and say it loud!', 'Pindutin ang mikropono at lakasan mo!'), .9);
+        btn.innerHTML = '🎤 ' + T("Tap & say it again!", 'Pindutin at ulitin!');
+        const dg = micDiag(r.err, target); micFb(dg.txt, 'warn');
+        say(dg.say, .9);
         return;
       }
       if (kind === 'page') return micPage(btn, target, r.alts, lang);
