@@ -1039,7 +1039,7 @@ function scrTitle(){P=null;const profs=Object.entries(STORE.profiles);
    <div class="crests">${CRESTS.map(c=>`<button class="${c===newCrest?'on':''}" onclick="newCrest='${c}';document.querySelectorAll('.crests button').forEach(b=>b.classList.toggle('on',b.textContent==='${c}'))">${c}</button>`).join('')}</div>
    <div class="center" style="margin-top:14px"><button class="btn" onclick="createProfile()">🏰 Found my Kingdom</button></div>
    ${MEMONLY?'<p class="muted center">Note: this browser is not allowing saving, so progress lasts only while this page is open.</p>':''}
-  </div><p class="center acr">Kinder to Grade 6 · all MATATAG subjects · Grade 6 & First Year High School Pre-Algebra</p><p class="center" style="color:#9fb0d8;font-size:12px;margin:2px 0 0">TUDLO v7.2 · 27 Nov 2026 · 🔄 Catches backwards reading · 🎤 Say it!</p>`)}
+  </div><p class="center acr">Kinder to Grade 6 · all MATATAG subjects · Grade 6 & First Year High School Pre-Algebra</p><p class="center" style="color:#9fb0d8;font-size:12px;margin:2px 0 0">TUDLO v7.3 · 27 Nov 2026 · 🔄 Backwards + "as" fix · 🎤 Say it!</p>`)}
 function createProfile(){const n=($('#pname').value||'').trim();if(!n){$('#pname').focus();toast('✍️ Type your name first, Commander!');return}
   const id='p'+Date.now();STORE.profiles[id]=newProfile(n,newCrest);STORE.current=id;P=STORE.profiles[id];if(newMode!=='g6'){P.young=true;P.yk.grade=newMode==='k1'?1:newGrade;P.intro=true;P.assess={done:true,skipped:true,res:{}};save();scrYoung();return}save();scrKingdom()}
 function pickProfile(id){STORE.current=id;P=STORE.profiles[id];migrate();save();P.young?scrYoung():scrKingdom()}
@@ -3303,6 +3303,16 @@ function brIsBackward(t,k,alts){const R=brRevOf(t,k);if(!R)return'';
 {const st=document.createElement('style');st.textContent=`.brltr{font-size:26px;margin:6px 0;letter-spacing:2px}.brltr b{display:inline-block;animation:brltr 1.2s ease 2 both}.brltr b:nth-child(2){animation-delay:.4s}.brltr b:nth-child(3){animation-delay:.8s}.brltr b:last-child{animation-delay:1.2s;color:#2e9d5b}
 @keyframes brltr{0%{transform:scale(1)}40%{transform:scale(1.45);color:#e67e22}100%{transform:scale(1)}}
 #brrow.ltr #brt0{animation:brltr .9s ease 2}#brrow.ltr #brt1{animation:brltr .9s ease .45s 2}#brrow.ltr #brt2{animation:brltr .9s ease .9s 2}`;document.head.appendChild(st)}
+// ---------- v7.3: Google hides words it thinks are rude ("as" → "a**") ----------
+// a starred word that starts like the answer is treated as the answer; Vosk also listens for "ass"
+VK_VC.as=['as','az','ass'];
+function brUnstar(t,alts){const T=String(t).toLowerCase();return (alts||[]).map(a=>String(a).replace(/\b([a-z])\*+([a-z]*)/gi,(m,f,end)=>{
+  const w=T.split(/\s+/).find(x=>x[0]===f.toLowerCase()&&(!end||x.endsWith(end.toLowerCase())));return w||m}))}
+{const _ck=brCheck;brCheck=function(it,alts){return _ck.call(this,it,brUnstar(it.t,alts))}}
+// show which listener heard it (🧠 phone / 🌐 Google) so grown-ups can tell if offline voice is working
+{const _l=listen;listen=async function(){const r=await _l.apply(this,arguments);window.__brSrc=r&&r.src;return r}}
+{const _bw=brWrong;brWrong=function(s){const r=_bw.apply(this,arguments);const fb=$('#micfb');
+  if(fb&&window.__brSrc)fb.insertAdjacentHTML('beforeend',`<div style="font-size:11px;opacity:.6;margin-top:3px">${window.__brSrc==='vosk'?'🧠 heard on phone':'🌐 heard by Google'}</div>`);return r}}
 // TUDLO grade pack — Grade 2 (MATATAG: Filipino, English, Mathematics, GMRC, Makabansa)
 (function(){
 function compare(i){const a=R(100,999);let b=a+pick([-R(1,9),R(1,9),-R(10,90),R(10,90),-R(100,300),R(100,300)]);b=Math.max(100,Math.min(999,b));if(b===a)b=a+1;
