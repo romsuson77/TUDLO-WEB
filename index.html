@@ -1039,7 +1039,7 @@ function scrTitle(){P=null;const profs=Object.entries(STORE.profiles);
    <div class="crests">${CRESTS.map(c=>`<button class="${c===newCrest?'on':''}" onclick="newCrest='${c}';document.querySelectorAll('.crests button').forEach(b=>b.classList.toggle('on',b.textContent==='${c}'))">${c}</button>`).join('')}</div>
    <div class="center" style="margin-top:14px"><button class="btn" onclick="createProfile()">🏰 Found my Kingdom</button></div>
    ${MEMONLY?'<p class="muted center">Note: this browser is not allowing saving, so progress lasts only while this page is open.</p>':''}
-  </div><p class="center acr">Kinder to Grade 6 · all MATATAG subjects · Grade 6 & First Year High School Pre-Algebra</p><p class="center" style="color:#9fb0d8;font-size:12px;margin:2px 0 0">TUDLO v7.0 · 25 Nov 2026 · 🧠 Offline voice · 🎤 Say it!</p>`)}
+  </div><p class="center acr">Kinder to Grade 6 · all MATATAG subjects · Grade 6 & First Year High School Pre-Algebra</p><p class="center" style="color:#9fb0d8;font-size:12px;margin:2px 0 0">TUDLO v7.1 · 27 Nov 2026 · ⚡ Faster listening · 🎤 Say it!</p>`)}
 function createProfile(){const n=($('#pname').value||'').trim();if(!n){$('#pname').focus();toast('✍️ Type your name first, Commander!');return}
   const id='p'+Date.now();STORE.profiles[id]=newProfile(n,newCrest);STORE.current=id;P=STORE.profiles[id];if(newMode!=='g6'){P.young=true;P.yk.grade=newMode==='k1'?1:newGrade;P.intro=true;P.assess={done:true,skipped:true,res:{}};save();scrYoung();return}save();scrKingdom()}
 function pickProfile(id){STORE.current=id;P=STORE.profiles[id];migrate();save();P.young?scrYoung():scrKingdom()}
@@ -2700,7 +2700,7 @@ function micMeterEl(){let m=document.getElementById('micmeter');if(m)return m;co
   (b.parentElement||document.body).insertAdjacentElement('afterend',m);return m}
 function micLevel(l){l=Math.max(0,Math.min(1,l));STT.levelSeen=true;if(l>STT.peak)STT.peak=l;const m=micMeterEl();if(!m)return;
   const n=Math.round(l*12);m.querySelectorAll('.mbarz i').forEach((x,j)=>{x.className=j<n?(j<5?'g':j<9?'y':'r'):''});
-  const lab=m.querySelector('.mlab');if(lab)lab.textContent=l>0.33?'🔊 I hear you!':l>0.12?'a little louder…':'quiet…'}
+  const lab=m.querySelector('.mlab');if(lab)lab.textContent=l>0.92?'😮 too loud — normal voice!':l>0.33?'🔊 I hear you!':l>0.12?'a little louder…':'quiet…'}
 window.__sttLevel=(id,v,is01)=>{micLevel(is01?v:(v+2)/12)};
 window.__sttSpeech=id=>{STT.speech=true;const m=micMeterEl();if(m){const lab=m.querySelector('.mlab');if(lab)lab.textContent='🔊 I hear you!'}};
 {const _rdy=window.__sttReady;window.__sttReady=id=>{try{_rdy&&_rdy(id)}catch(e){}const m=micMeterEl();if(m){const lab=m.querySelector('.mlab');if(lab)lab.textContent='🎤 speak now'}}}
@@ -2957,18 +2957,19 @@ async function brModel(slow){if(!YL||YL.kind!=='bridge')return;const it=YL.items
   if(k==='sent'){const ws=t.split(' ');for(let j=0;j<ws.length;j++){const el=$('#brw'+j);if(!el)return;el.classList.add('on');await say(ws[j].replace(/[.!?,]/g,''),slow?.6:.75,null,it.lang);el.classList.remove('on');if(!alive())return;await sleep(slow?250:80)}
     await say(t,.8,null,it.lang);return}
   const [p1,p2]=brParts(t);const row=$('#brrow');if(!row)return;row.classList.remove('merged');const a=$('#brt0'),b=$('#brt1');
-  a.classList.add('on');await say(brSaySound(p1,k),.7);a.classList.remove('on');if(!alive())return;await sleep(slow?350:150);
-  b.classList.add('on');await say(brSaySound(p2,k),.7);b.classList.remove('on');if(!alive())return;await sleep(200);
-  row.classList.add('merged');tone(300,.12);tone(600,.18,'sine',.06,.12);await sleep(350);
-  if(slow){await say(brSaySound(p1,k)+'… '+brSaySound(p2,k)+'…',.55);if(!alive())return}
-  await say(brSayWhole(t),.65)}
+  a.classList.add('on');await say(brSaySound(p1,k),slow?.7:.85);a.classList.remove('on');if(!alive())return;await sleep(slow?300:60);
+  b.classList.add('on');await say(brSaySound(p2,k),slow?.7:.85);b.classList.remove('on');if(!alive())return;await sleep(slow?150:40);
+  row.classList.add('merged');tone(300,.1);tone(600,.14,'sine',.06,.1);await sleep(slow?300:150);
+  if(slow){await say(brSaySound(p1,k)+'… '+brSaySound(p2,k)+'…',.6);if(!alive())return}
+  await say(brSayWhole(t),slow?.65:.8)}
 function brTap(j){const it=YL.items[YL.i],k=it.kind,p=brParts(it.t)[j];const el=$('#brt'+j);if(el){el.classList.add('on');say(brSaySound(p,k),.7).then(()=>el&&el.classList.remove('on'))}}
 // listening starts by itself after TUDLO finishes talking — no tapping, no grown-up checking
 async function brYourTurn(quiet){const b=$('#brbtns');if(!b)return;const it=YL.items[YL.i];const k=it.kind;const tok=YL.tok;
   const ask=k==='sent'?(it.lang==='fil'?'Ikaw naman! Basahin mo.':'Your turn! Read the sentence.'):k==='spell'?'Now read the word you spelled!':brPlain(k)||k==='cvc'?'Your turn! Read the word.':'Your turn! Say it.';
   if(!micReady()){brNoMic();return}
   b.innerHTML=`<button class="btn blue" onclick="brModel(true)">🔊 Listen ${it.teach?'again':''}</button><button class="btn micbtn" id="brmic" onclick="brListen(this)">🎤 Get ready…</button>`;
-  await say(quiet?(k==='sent'?(it.lang==='fil'?'Basahin mo!':'Read it!'):'Say it!'):ask,.9);if(!YL||YL.tok!==tok)return;brAutoListen()}
+  if(YL.i===0&&!quiet)await say(ask,.95);else{tone(880,.07,'sine',.07);tone(1320,.1,'sine',.07,.07);await sleep(200)}   // a quick "ding" = your turn
+  if(!YL||YL.tok!==tok)return;brAutoListen()}
 function brAutoListen(){const m=$('#brmic');if(m&&!m.dataset.busy&&micReady())brListen(m)}
 // device can't listen: read along with TUDLO (no grading), then go on
 function brNoMic(){const b=$('#brbtns');if(!b)return;const it=YL.items[YL.i];const tok=YL.tok;
@@ -2977,19 +2978,25 @@ function brNoMic(){const b=$('#brbtns');if(!b)return;const it=YL.items[YL.i];con
     const bb=$('#brbtns');if(bb)bb.innerHTML=`<button class="btn blue" onclick="brModel(true)">🔊 Listen</button><button class="btn green" onclick="yNext()">Next ▶</button>`})()}
 async function brListen(btn){if(!YL||btn.dataset.busy)return;const it=YL.items[YL.i],tok=YL.tok,k=it.kind;btn.dataset.busy=1;btn.classList.add('listen');btn.classList.remove('pulse');
   btn.innerHTML=`👂 Listening… say it now! <span class="mbars"><i></i><i></i><i></i></span>`;P.yk.mic=P.yk.mic||{n:0,ok:0};P.yk.mic.n++;
-  const vl=vkList(it.t,it.kind);let r=await listen(it.lang,vl);
-  if((r.err==='nolang'||r.err==='network')&&it.lang==='fil'&&voskReady()){btn.innerHTML='🎤 Say it once more!';await say(it.kind==='sent'?'Read it once more!':'Say it once more!',.9);if(!YL||YL.tok!==tok)return;btn.innerHTML=`👂 Listening… say it now! <span class="mbars"><i></i><i></i><i></i></span>`;r=await listen('en',vl)}
-  else if(r.err==='nolang'&&it.lang==='fil')r=await listen('en',vl);
+  const vl=vkList(it.t,it.kind);const okNow=alts=>brCheck(it,alts).score===2;let r=await listen(it.lang,vl,okNow);
+  if((r.err==='nolang'||r.err==='network')&&it.lang==='fil'&&voskReady()){btn.innerHTML='🎤 Say it once more!';await say(it.kind==='sent'?'Read it once more!':'Say it once more!',.9);if(!YL||YL.tok!==tok)return;btn.innerHTML=`👂 Listening… say it now! <span class="mbars"><i></i><i></i><i></i></span>`;r=await listen('en',vl,okNow)}
+  else if(r.err==='nolang'&&it.lang==='fil')r=await listen('en',vl,okNow);
   if(!YL||YL.tok!==tok||!btn.isConnected)return;delete btn.dataset.busy;btn.classList.remove('listen');
   if(r.err){if(['not-allowed','start','service-not-allowed'].includes(r.err)){it.blk=(it.blk||0)+1;if(it.blk>=3){brNoMic();return}
       btn.innerHTML='🎤 Tap here & say it!';btn.classList.add('pulse');micFb('👆 Tap the red 🎤 button (and press Allow if the phone asks for the microphone)!','warn');return}
-    const m=micErrMsg(r.err);if(m){toast(m);brNoMic();return}it.quiet=(it.quiet||0)+1;
+    const m=micErrMsg(r.err);if(m){toast(m);brNoMic();return}
+    if(r.err==='nomatch'){brWrong({score:0,heard:''});return}      // voice heard, word unclear → counts as a try (so it never drags on)
+    it.quiet=(it.quiet||0)+1;
     const dg=micDiag(r.err,it.kind==='sent'?'':it.t);micFb(dg.txt,'warn');
     if(it.quiet<=2){btn.innerHTML='🎤 Get ready…';await say(dg.say,.9);if(dg.kind==='unclear'&&YL&&YL.tok===tok){await sleep(250);await say(it.kind==='sent'?it.t:brSayWhole(it.t),.6,null,it.kind==='sent'?it.lang:undefined)}if(YL&&YL.tok===tok)brAutoListen();return}
     btn.innerHTML='🎤 Tap me and say it!';btn.classList.add('pulse');say('Tap the microphone when you are ready.',.9);return}
-  const s=k==='sent'?brSentScore(it.t,r.alts,it.lang):brPlain(k)?brWordScore(it.t,r.alts):brScore(it.t,r.alts);
+  const s=brCheck(it,r.alts);
   if(k==='sent')(s.hit||[]).forEach((h,j)=>{const el=$('#brw'+j);if(el){el.classList.remove('miss','said');el.classList.add(h?'said':'miss')}});
-  if(s.score===2){P.yk.mic.ok++;brRight();return}brWrong(s)}
+  if(s.score===2){P.yk.mic.ok++;brRight();return}
+  // 2nd try: "close" (right vowel or right consonant) is good enough for a young reader → keep the game moving
+  if(it.tries>=1&&s.score===1){P.yk.mic.ok++;it.close=true;brRight();return}
+  brWrong(s)}
+function brCheck(it,alts){const k=it.kind;return k==='sent'?brSentScore(it.t,alts,it.lang):brPlain(k)?brWordScore(it.t,alts):brScore(it.t,alts)}
 
 // ---------- celebrate, encourage, adapt ----------
 const BR_YAY=['Hooray!','Good job!','Yehey!','Super!','Wow, you read it!','Galing mo!','Amazing!','You did it!','Great reading!','Brave knight!'];
@@ -3009,8 +3016,12 @@ function brRight(){const it=YL.items[YL.i];const t=it.t,a=YL.ad;const first=it.t
   if(extra)$('#brres').innerHTML+=extra;
   const lv=brAdapt();if(lv)$('#brres').innerHTML+=lv;
   $('#micfb').innerHTML='';$('#brbtns').innerHTML=`<button class="btn blue" onclick="brHearAgain()">🔊 Hear it again</button><button class="btn green" onclick="yNext()">Next ▶</button>`;
-  const left=YL.items.length-YL.i-1;const enc=left===5?' Only 5 more to go!':left===10?' 10 more! You can do it!':'';
-  say(`${pick(BR_YAY)}${msg?' '+msg.replace(/[^\w\s!']/g,''):''}${enc}`,.9)}
+  const left=YL.items.length-YL.i-1;const enc=left===5?' 5 more!':left===10?' 10 more!':'';
+  const cheer=it.close?'Close enough! '+brSayWhole(t)+'!':pick(BR_SHORT);
+  const tk=YL.tok;const goOn=()=>{if(YL&&YL.tok===tk&&YL.kind==='bridge')yNext()};
+  if(lv){setTimeout(goOn,2200);return}                      // level-up banner is speaking
+  say(`${cheer}${msg?' '+msg.replace(/[^\w\s!']/g,''):''}${enc}`,1).then(()=>setTimeout(goOn,msg||extra?700:250))}
+const BR_SHORT=['Yes!','Good!','Galing!','Super!','Great!','Nice!','Yehey!','Correct!'];
 function brHearAgain(){const it=YL.items[YL.i];say(it.kind==='sent'?it.t:brSayWhole(it.t),.7,null,it.kind==='sent'?it.lang:undefined)}
 function brStarPop(){const s=$('#brstar');if(s){s.textContent='⭐ '+YL.ad.stars;s.classList.remove('pop');void s.offsetWidth;s.classList.add('pop')}}
 function brWrong(s){const it=YL.items[YL.i];it.tries++;SFX.miss();const a=YL.ad;a.streak=0;const t=it.t,k=it.kind;
@@ -3026,7 +3037,7 @@ function brWrong(s){const it=YL.items[YL.i];it.tries++;SFX.miss();const a=YL.ad;
   else if(brPlain(k)){hint=s.score===1?`Close! Listen carefully: <b>${esc(t)}</b>.`:`Good try! Listen, then read it again.`}
   else{const [p1,p2]=brParts(t);hint=s.score===1?(s.why==='start'?`Close! Start with the sound <b>${p1}</b>.`:s.why==='vowel'?`Close! Listen to the <b>${k==='vc'?p1:k==='cv'?p2:p2[0]}</b> sound.`:`Close! Listen to the end sound.`):`Good try! Listen to each sound, then push them together.`}
   fb.innerHTML=heard+hint+down;const b=$('#brmic');if(b)b.innerHTML='🎤 Try again';
-  const tk=YL.tok;say(s.score===1?'So close! Listen.':'Good try! Listen again.',.9).then(()=>brModel(true)).then(()=>{if(YL&&YL.tok===tk)return say('Your turn!',.9)}).then(()=>{if(YL&&YL.tok===tk)brAutoListen()})}
+  const tk=YL.tok;say(s.score===1?'So close! Listen.':'Good try! Listen again.',.9).then(()=>brModel(true)).then(()=>{if(YL&&YL.tok===tk){tone(880,.07,'sine',.07);tone(1320,.1,'sine',.07,.07);return sleep(200)}}).then(()=>{if(YL&&YL.tok===tk)brAutoListen()})}
 // level up / level down / go back — returns a banner (or '')
 function brAdapt(){const a=YL.ad,L=YL.L;const r=a.recent;const misses=r.filter(x=>!x).length;
   if(a.streak>0&&a.streak%5===0&&a.tier<2){a.tier++;a.ups++;tone(523,.12,'triangle',.08);tone(784,.2,'triangle',.08,.12);
@@ -3229,9 +3240,9 @@ async function spDone(){const it=YL.items[YL.i];it.spelled=true;if(it.miss>0)it.
 function voskState(){try{return window.AndroidSTT&&AndroidSTT.voskState?String(AndroidSTT.voskState()):'na'}catch(e){return 'na'}}
 function voskReady(){return voskState()==='ready'}
 // how each 2-letter sound is spelled as real English words the offline model knows
-const VK_VC={at:['at'],an:['an'],am:['am'],ad:['add','ad'],ap:['app'],as:['as'],ed:['ed'],en:['en'],et:['et'],eg:['egg'],em:['em'],
-  it:['it'],in:['in'],ip:['ip'],ig:['ig'],id:['id'],is:['is'],on:['on'],ot:['ot'],op:['op'],og:['og'],ox:['ox'],
-  up:['up'],un:['un'],ug:['ugh'],ut:['ut'],ud:['ud'],us:['us'],um:['um'],im:['im'],om:['om'],ab:['ab'],ag:['ag'],ax:['ax'],ex:['ex'],ix:['ix'],ib:['ib']};
+const VK_VC={at:['at'],an:['an','ann'],am:['am'],ad:['add','ad'],ap:['app','ap'],as:['as','az'],ed:['ed','edd'],en:['en','n'],et:['et','ett'],eg:['egg','eg'],em:['em','m'],
+  it:['it'],in:['in','inn'],ip:['ip','ipp'],ig:['ig','igg'],id:['id'],is:['is','iz'],on:['on'],ot:['ot','ought','aught'],op:['op','opp'],og:['og','ogg'],ox:['ox','ocks'],
+  up:['up'],un:['un'],ug:['ugh','ug'],ut:['ut','utt'],ud:['ud','udd'],us:['us','uss'],um:['um'],im:['im'],om:['om'],ab:['ab'],ag:['ag'],ax:['ax'],ex:['ex'],ix:['ix'],ib:['ib']};
 const VK_CV={ba:['bah','ba'],be:['bay'],bi:['bee'],bo:['bo','bow'],bu:['boo'],ma:['ma','mah'],me:['may'],mi:['me'],mo:['mo','mow'],mu:['moo'],
   sa:['sah'],se:['say'],si:['see','sea'],so:['so','sew'],su:['sue'],ta:['tah'],te:['tay'],ti:['tea','tee'],to:['toe','tow'],tu:['too','two'],
   la:['la','lah'],le:['lay'],li:['lee'],lo:['low','lo'],lu:['loo','lou'],pa:['pa','pah'],pe:['pay'],pi:['pee'],po:['po','poe'],pu:['poo'],
@@ -3254,6 +3265,7 @@ function vkMap(alts,rev){return (alts||[]).map(a=>String(a).toLowerCase().split(
 
 // results now say where they came from ('vosk' = offline recogniser on the phone)
 window.__sttResult=(id,alts,src)=>{const f=STT.cb[id];if(f){delete STT.cb[id];f({alts:Array.isArray(alts)?alts:[],src:src||'google'})}};
+STT.pcb={};window.__sttPartial=(id,alts,src)=>{const f=STT.pcb[id];if(f)f(Array.isArray(alts)?alts:[],src||'google')};
 
 // --- offline model status (download progress etc.) ---
 window.__voskStatus=s=>{const el=document.getElementById('vkrow');if(el)el.innerHTML=vkRowHtml();if(s==='ready'&&!P?.settings?.vkToast){try{P.settings.vkToast=1;save();toast('🧠 Offline voice is ready — TUDLO can now hear short sounds without internet!')}catch(e){}}};
@@ -3642,7 +3654,7 @@ setTimeout(checkUpdate,2500);document.addEventListener('visibilitychange',()=>{i
     let sttTimer = null, startTimer = null, callNo = 0;
     const ready = () => { try { window.__sttReady && window.__sttReady(); } catch (e) {} };
 
-    listen = function (lang, list) {   // list = {words, rev}: the expected answers (app 2.0 offline recogniser)
+    listen = function (lang, list, accept) {   // list = {words, rev}: expected answers (app 2.0) · accept(alts) → true = right answer, stop at once
       try { micMeterReset(); } catch (e) {}
       try { (typeof sayStop !== 'undefined') && sayStop(); } catch (e) {}
       try { (typeof micStop !== 'undefined') && micStop(); } catch (e) {}
@@ -3660,7 +3672,16 @@ setTimeout(checkUpdate,2500);document.addEventListener('visibilitychange',()=>{i
           // --- Android APK: native SpeechRecognizer bridge ---
           if (window.AndroidSTT) {
             const id = 's' + (++STT.n);
-            STT.cb[id] = v => { if (v && v.alts && v.src === 'vosk' && list) v.alts = vkMap(v.alts, list.rev); resolve(done(v)); };
+            STT.cb[id] = v => { delete STT.pcb[id]; if (v && v.alts && v.src === 'vosk' && list) v.alts = vkMap(v.alts, list.rev); resolve(done(v)); };
+            STT.pcb[id] = (alts, src) => {           // partial words while the child is still talking
+              if (!accept || !STT.cb[id]) return;
+              const a = (src === 'vosk' && list) ? vkMap(alts, list.rev) : alts;
+              let ok = false; try { ok = accept(a); } catch (e) {}
+              if (!ok) return;
+              const cb = STT.cb[id]; delete STT.cb[id]; delete STT.pcb[id];
+              try { AndroidSTT.cancel(); } catch (e) {}
+              resolve(done({ alts: a, src, early: true }));
+            };
             try { if (list && AndroidSTT.listenList) AndroidSTT.listenList(loc, id, JSON.stringify(list.words)); else AndroidSTT.listen(loc, id); }
             catch (e) { delete STT.cb[id]; return resolve(done({ err: 'bridge' })); }
             sttTimer = setTimeout(() => {
@@ -3706,6 +3727,7 @@ setTimeout(checkUpdate,2500);document.addEventListener('visibilitychange',()=>{i
                 if (res.isFinal) finalAlts.push(...t); else if (t.length) interimAlts = t;
               }
               if (finalAlts.length) return end({ alts: all() });
+              if (accept && interimAlts.length) { let ok = false; try { ok = accept(all()); } catch (er) {} if (ok) { try { r.abort(); } catch (er) {} return end({ alts: all(), early: true }); } }
               if (interimAlts.length) {        // engine heard something but is slow to finalise
                 clearTimeout(settle);
                 settle = setTimeout(() => { try { r.stop(); } catch (er) {} end({ alts: all() }); }, 900);
@@ -3724,7 +3746,7 @@ setTimeout(checkUpdate,2500);document.addEventListener('visibilitychange',()=>{i
           } catch (e) {
             end({ err: 'start' });
           }
-        }, 220);
+        }, 140);
       });
     };
   });
