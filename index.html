@@ -1039,7 +1039,7 @@ function scrTitle(){P=null;const profs=Object.entries(STORE.profiles);
    <div class="crests">${CRESTS.map(c=>`<button class="${c===newCrest?'on':''}" onclick="newCrest='${c}';document.querySelectorAll('.crests button').forEach(b=>b.classList.toggle('on',b.textContent==='${c}'))">${c}</button>`).join('')}</div>
    <div class="center" style="margin-top:14px"><button class="btn" onclick="createProfile()">🏰 Found my Kingdom</button></div>
    ${MEMONLY?'<p class="muted center">Note: this browser is not allowing saving, so progress lasts only while this page is open.</p>':''}
-  </div><p class="center acr">Kinder to Grade 6 · all MATATAG subjects · Grade 6 & First Year High School Pre-Algebra</p><p class="center" style="color:#9fb0d8;font-size:12px;margin:2px 0 0">TUDLO v7.1 · 27 Nov 2026 · ⚡ Faster listening · 🎤 Say it!</p>`)}
+  </div><p class="center acr">Kinder to Grade 6 · all MATATAG subjects · Grade 6 & First Year High School Pre-Algebra</p><p class="center" style="color:#9fb0d8;font-size:12px;margin:2px 0 0">TUDLO v7.2 · 27 Nov 2026 · 🔄 Catches backwards reading · 🎤 Say it!</p>`)}
 function createProfile(){const n=($('#pname').value||'').trim();if(!n){$('#pname').focus();toast('✍️ Type your name first, Commander!');return}
   const id='p'+Date.now();STORE.profiles[id]=newProfile(n,newCrest);STORE.current=id;P=STORE.profiles[id];if(newMode!=='g6'){P.young=true;P.yk.grade=newMode==='k1'?1:newGrade;P.intro=true;P.assess={done:true,skipped:true,res:{}};save();scrYoung();return}save();scrKingdom()}
 function pickProfile(id){STORE.current=id;P=STORE.profiles[id];migrate();save();P.young?scrYoung():scrKingdom()}
@@ -3276,6 +3276,33 @@ function vkRowHtml(){const s=voskState();
 {const _gs=grownSettings;grownSettings=function(){_gs.apply(this,arguments);const box=document.querySelector('#mbox .kid');if(!box)return;
   const d=document.createElement('div');d.id='vkrow';d.style.cssText='background:#fff;border-radius:14px;padding:10px;margin:8px 0;border:2px solid #eadfc8';d.innerHTML=vkRowHtml();
   const rows=box.querySelectorAll('div[style*="border:2px solid #eadfc8"]');const after=rows[1]||rows[0];if(after)after.insertAdjacentElement('afterend',d);else box.appendChild(d)}}
+// ---------- v7.2: backwards reading (AP read as PA) ----------
+// 1) the offline recogniser is also given the backwards word, so "pa" is heard as "pa" (not forced into "ap")
+// 2) a backwards read is caught and the child is shown to read from the LEFT
+function brRevOf(t,k){t=String(t).toLowerCase();if(!/^[a-z]+$/.test(t)||t.length<2||t.length>3)return'';const r=t.split('').reverse().join('');return r===t?'':r}
+function brIsBackward(t,k,alts){const R=brRevOf(t,k);if(!R)return'';
+  for(const a of (alts||[])){const n=micNorm(a);if(!n)continue;const toks=n.split(' ');
+    for(const tok of [...toks,toks.join('')]){if(!tok)continue;
+      if(tok===R)return tok;
+      if(k==='vc'){const v=t[0],c=t[1];if(!isV(tok[0])&&brC(tok[0])===brC(c)&&tok.length<=4&&brVowelOf(tok.slice(1))===v)return tok}
+      else if(k==='cv'){const c=t[0],v=t[1];if(isV(tok[0])&&brVowelOf(tok)===v){const rest=tok.replace(/^[aeiouhy]+/,'');if(rest&&brC(rest[0])===brC(c)&&rest.length<=2)return tok}}
+      else if(t.length===3&&tok.length===3&&brC(tok[0])===brC(t[2])&&brC(tok[2])===brC(t[0])&&tok[1]===t[1])return tok}}
+  return''}
+{const _vk=vkList;vkList=function(target,kind){const r=_vk.apply(this,arguments);const T=String(target).toLowerCase().replace(/[.!?,]/g,'').trim();const k=kind||brKind(T);
+  if(k==='sent'||k==='numw')return r;const R=brRevOf(T,k);if(!R)return r;
+  for(const p of vkPx(R)){if(!(p in r.rev)){r.rev[p]=R}if(!r.words.includes(p))r.words.push(p)}return r}}
+{const _ck=brCheck;brCheck=function(it,alts){const s=_ck.apply(this,arguments);if(s.score===2||it.kind==='sent'||it.kind==='numw')return s;
+  const b=brIsBackward(it.t,it.kind,alts);return b?{score:0,heard:b,why:'backward',rev:true}:s}}
+{const _bw=brWrong;brWrong=function(s){const it=YL&&YL.items[YL.i];if(!it||!s||s.why!=='backward'||it.tries>=2)return _bw.apply(this,arguments);
+  it.tries++;SFX.miss();const a=YL.ad;a.streak=0;if(it.tries===1){a.recent.push(0);if(a.recent.length>6)a.recent.shift()}
+  const down=it.tries===1?brAdapt():'';const t=it.t;const L=t.split('');const fb=$('#micfb');fb.className='fb warn';
+  fb.innerHTML=`I heard "<b>${esc(s.heard)}</b>" — that's <b>backwards</b>! 🔄<div class="brltr">👉 ${L.map(c=>`<b>${esc(c)}</b>`).join(' ➡️ ')} = <b>${esc(t)}</b></div><small>Start on the LEFT, then go right.</small>${down}`;
+  const row=$('#brrow');if(row){row.classList.add('ltr');setTimeout(()=>row.classList.remove('ltr'),2600)}
+  const b=$('#brmic');if(b)b.innerHTML='🎤 Try again';const tk=YL.tok;
+  say('Oops! That was backwards. Start on the left.',.9).then(()=>brModel(true)).then(()=>{if(YL&&YL.tok===tk){tone(880,.07,'sine',.07);tone(1320,.1,'sine',.07,.07);return sleep(200)}}).then(()=>{if(YL&&YL.tok===tk)brAutoListen()})}}
+{const st=document.createElement('style');st.textContent=`.brltr{font-size:26px;margin:6px 0;letter-spacing:2px}.brltr b{display:inline-block;animation:brltr 1.2s ease 2 both}.brltr b:nth-child(2){animation-delay:.4s}.brltr b:nth-child(3){animation-delay:.8s}.brltr b:last-child{animation-delay:1.2s;color:#2e9d5b}
+@keyframes brltr{0%{transform:scale(1)}40%{transform:scale(1.45);color:#e67e22}100%{transform:scale(1)}}
+#brrow.ltr #brt0{animation:brltr .9s ease 2}#brrow.ltr #brt1{animation:brltr .9s ease .45s 2}#brrow.ltr #brt2{animation:brltr .9s ease .9s 2}`;document.head.appendChild(st)}
 // TUDLO grade pack — Grade 2 (MATATAG: Filipino, English, Mathematics, GMRC, Makabansa)
 (function(){
 function compare(i){const a=R(100,999);let b=a+pick([-R(1,9),R(1,9),-R(10,90),R(10,90),-R(100,300),R(100,300)]);b=Math.max(100,Math.min(999,b));if(b===a)b=a+1;
